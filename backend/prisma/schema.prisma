@@ -44,8 +44,12 @@ enum NotificationStatus {
 model Item {
   id        String     @id @default(cuid())
   //cuid:-i generates the random-sequential without dashes (35 character long)
-  userId    String // FK(Foreign key) to Better Auth's User.id — add the relation once that model exists(we willdo this by  using this command:-
+  userId    String // FK(Foreign key) to Better Auth's 
+  // User.id — add the relation once that model exists(we willdo this by  using this command:-
   // npx auth@latest generate)
+  
+  user User @relation(fields: [userId],references: [id],onDelete: Cascade)
+  
   label     String // "House Keys", "Backpack", "Water Bottle"
   category  String? // optional icon/category key for display
   shortCode String     @unique @default(cuid()) // encoded in the QR URL — random, never sequential
@@ -53,6 +57,7 @@ model Item {
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
   // (whenevr this row is updated , prisma update this coloum,with exact current date and time )
+
 
   scanEvents ScanEvent[]
   reports    FoundReport[]
@@ -136,8 +141,11 @@ model User {
   image         String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+ 
+  
   sessions      Session[]
   accounts      Account[]
+ items          Item[]
 
   @@unique([email])
   @@map("user")
@@ -190,3 +198,6 @@ model Verification {
   @@index([identifier])
   @@map("verification")
 }
+
+
+
