@@ -1,16 +1,22 @@
-// import Router from "express";
-// import {
-//   createcomment,
-//   updatecomment,
-//   showallcomment,
-//   dltcomment,
-//   fetchcomment,
-// } from "../Controller/commentController.js";
+import { Router } from "express";
+import { requireAuth } from "../middleware/auth.js";
+import {
+  handleCreateItem,
+  archiveItemController,
+  allUserItem,
+  getspecificItem,
+  updateItemcontroller,
+} from "../controllers/itemcontroller.js";
 
-// const commentroutes = Router();
-// commentroutes.get("/", showallcomment);
-// commentroutes.get("/:id", fetchcomment);
-// commentroutes.delete("/:id", dltcomment);
-// commentroutes.post("/", createcomment);
-// commentroutes.put("/:id", updatecomment);
-// export default commentroutes;
+const itemroutes = Router();
+// Create an item (POST /api/items)
+itemroutes.post("/", requireAuth, handleCreateItem);
+// Get all items for the logged-in user (GET /api/items)
+itemroutes.get("/", requireAuth, allUserItem);
+// Get a specific item by ID (GET /api/items/:id)
+itemroutes.get("/:id", requireAuth, getspecificItem);
+// Archive a specific item (PATCH /api/items/:id/archive)
+itemroutes.patch("/:id/archive", requireAuth, archiveItemController);
+
+itemroutes.put("/:id", requireAuth, updateItemcontroller);
+export default itemroutes;

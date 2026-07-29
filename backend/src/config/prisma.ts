@@ -7,6 +7,8 @@ if (!connectionString) {
 }
 const pool = new Pool({ connectionString });
 const adapter = new PrismaPg(pool);
+
+
 const prisma = new PrismaClient({ adapter });
 export { prisma };
 //Pool (from pg) - The Delivery Trucks:(it opens a set of no. of conection s, whenevr user req. data , server take the connection form this pool and use it )

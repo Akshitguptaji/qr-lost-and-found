@@ -20,6 +20,7 @@ datasource db {
 enum ItemStatus {
   ACTIVE
   ARCHIVED
+  LOST
 }
 
 enum ReportStatus {
@@ -52,6 +53,7 @@ model Item {
   
   label     String // "House Keys", "Backpack", "Water Bottle"
   category  String? // optional icon/category key for display
+  description String?
   shortCode String     @unique @default(cuid()) // encoded in the QR URL — random, never sequential
   status    ItemStatus @default(ACTIVE)
   createdAt DateTime   @default(now())
