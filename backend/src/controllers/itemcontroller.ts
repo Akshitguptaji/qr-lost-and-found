@@ -7,6 +7,7 @@ import {
   allUserItems,
   specificItem,
   updateItem,
+  Qrcodegenerate,
 } from "../services/item.services.js";
 // import { success } from "better-auth";
 // import { userAc } from "better-auth/plugins/admin/access";
@@ -42,9 +43,16 @@ export const handleCreateItem = async (
     };
 
     const newItem = await createItem(inputData);
+
+    const qrcodebase64 = await Qrcodegenerate(
+      newItem.shortCode,
+      newItem.userId,
+    );
+
     res.status(201).json({
       success: true,
       data: newItem,
+      qrcode: qrcodebase64,
     });
   } catch (error) {
     console.error("[Create Item Error]:", error);
@@ -193,5 +201,42 @@ export const updateItemcontroller = async (req: Request, res: Response) => {
       success: false,
       message: "Internal server error",
     });
+  }
+};
+
+export const getqrcode = async (req: Request, res: Response) => {
+  try {
+    const userId = req.userId as string;
+    const shortCode = req.params.shortCode as string;
+
+    if (!userId) {
+      return res.status(400).json({
+        message: "UN_AUTH.",
+      });
+    }
+    if (!shortCode) {
+      return res
+        .status(400)
+        .json({ success: false, message: "ShortCode is required" });
+    }
+    const genqr64 = await Qrcodegenerate(shortCode, userId);
+
+    return res.status(200).json({
+      success: true,
+      qrCode: genqr64,
+    });
+  } catch (error: any) {
+    if (error.message === "ITEM DOES NOT EXIST") {
+      return res.status(404).json({ message: "Item not found" });
+    }
+    if (error.message === "UNAUTHORIZED") {
+      return res
+        .status(403)
+        .json({ message: "Unauthorized. This is not your item." });
+    }
+
+    return res
+      .status(500)
+      .json({ success: false, message: "Failed to generate QR" });
   }
 };

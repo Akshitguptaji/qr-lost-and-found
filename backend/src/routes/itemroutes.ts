@@ -6,6 +6,7 @@ import {
   allUserItem,
   getspecificItem,
   updateItemcontroller,
+  getqrcode,
 } from "../controllers/itemcontroller.js";
 
 const itemroutes = Router();
@@ -17,6 +18,6 @@ itemroutes.get("/", requireAuth, allUserItem);
 itemroutes.get("/:id", requireAuth, getspecificItem);
 // Archive a specific item (PATCH /api/items/:id/archive)
 itemroutes.patch("/:id/archive", requireAuth, archiveItemController);
-
+itemroutes.get("/:shortCode/qrcode", requireAuth, getqrcode);
 itemroutes.put("/:id", requireAuth, updateItemcontroller);
 export default itemroutes;
