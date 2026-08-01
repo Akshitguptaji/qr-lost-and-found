@@ -1,5 +1,10 @@
 import { rateLimit, ipKeyGenerator } from "express-rate-limit";
+import crypto from "crypto";
 import type { Request, Response } from "express";
+const salt = process.env.IP_SALT as string;
+if (!salt) {
+  throw new Error("CRITICAL: IP_SALT is missing in .env");
+}
 export const rateLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hr window
   limit: 5,
@@ -9,16 +14,24 @@ export const rateLimiter = rateLimit({
   keyGenerator: (
     req: Request,
     res: Response,
-  ): 
-  //By default, Express rate limit tracks people purely by their IP address. We need to override that. If a helpful person finds two different lost items you own, they should be allowed to report both. This function builds a custom "ID badge" so the limiter tracks requests based on both the user and the specific item
+  ): //By default, Express rate limit tracks people purely by their IP address. We need to override that. If a helpful person finds two different lost items you own, they should be allowed to report both. This function builds a custom "ID badge" so the limiter tracks requests based on both the user and the specific item
   //
   string => {
+    const rawIp =
+      (req.headers["cf-connecting-ip"] as string) || req.ip || "unknown";
     const safeIp = ipKeyGenerator(
-      req.ip ?? req.socket.remoteAddress ?? " ",
+      rawIp,
       56,
       //Mobile phones (which finders will use to scan the QR code) often use IPv6 addresses. Phones constantly rotate the last few digits of an IPv6 address for privacy. If you rate-limit the exact IP, a spammer's phone just rotates the digits and bypasses your 5-request limit. The 56 tells the library to chop off those rotating digits and group the mobile IP by its broader network block, making your security bulletproof against mobile IP hopping.
     );
-    return `${safeIp}:${req.params.shortCode}`;
+
+    
+
+    const hashsafeIp = crypto
+      .createHmac("sha256", salt)
+      .update(safeIp)
+      .digest("hex");
+    return `${hashsafeIp}:${req.params.shortCode}`;
   },
 
   standardHeaders: "draft-8",

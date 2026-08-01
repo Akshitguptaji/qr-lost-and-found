@@ -1,60 +1,66 @@
-import crypto from "crypto";
 import type { Request, Response } from "express";
+import { getIpHash } from "../utils/hash.util.js";
+import { createReportService } from "../services/public.services.js";
 
+// Explicitly type req and res, and return type
+export const submitFoundReport = async (
+  req: Request,
+  res: Response,
+): Promise<any> => {
+  const { shortCode } = req.params;
+  if (!shortCode || typeof shortCode !== "string") {
+    return res.status(400).json({ error: "Missing or invalid shortCode" });
+  }
+  const {
+    latitude,
+    longitude,
+    accuracyMeters,
+    message,
+    finderContact,
+    honeypot,
+  } = req.body;
 
-// // export const createFoundReport = async (req: Request, res: Response) => {
-// //   // 1. Get the raw IP (checking proxies just in case)
-// //   const rawIp = (req.headers["x-forwarded-for"] ||
-// //     req.socket.remoteAddress ||
-// //     "unknown") as string;
+  // 1. Bot Trap (Honeypot)
+  if (honeypot) {
+    return res.status(200).json({ ok: true });
+  }
 
-// //   // 2. Hash it with the salt from your environment variables
-// //   const salt = process.env.IP_SALT;
-// //   if (!salt) throw new Error("IP_SALT is missing in .env");
+  // 2. Data Validation
+  if (!message?.trim()) {
+    return res.status(400).json({ error: "Message is required" });
+  }
 
-// //   const ipHash = crypto
-// //     .createHash("sha256")
-// //     .update(rawIp + salt)
-// //     .digest("hex");
+  // Never trust client GPS data. Restore the bounds checking.
+  if (latitude != null && (latitude < -90 || latitude > 90)) {
+    return res.status(400).json({ error: "Invalid latitude" });
+  }
+  if (longitude != null && (longitude < -180 || longitude > 180)) {
+    return res.status(400).json({ error: "Invalid longitude" });
+  }
 
-// //   // 3. Grab the User Agent
-// //   const userAgent = req.headers["user-agent"] || "unknown";
+  // 3. Extract tracking data for the ScanEvent
+  const ipHash = getIpHash(req);
+  const userAgent = (req.headers["user-agent"] as string) || "unknown";
+  // 4. Hand off to the Service
+  try {
+    await createReportService(shortCode, {
+      latitude,
+      longitude,
+      accuracyMeters,
+      message,
+      finderContact,
+      ipHash,
+      userAgent,
+    });
 
-// //   // Now pass ipHash and userAgent to Prisma...
-// // };
+    return res.status(200).json({ ok: true });
+  } catch (err: any) {
+    if (err.message === "ITEM_NOT_FOUND") {
+      return res.status(404).json({ error: "Invalid QR code" });
+    }
 
-// // controllers/public.controller.js
-// // You can import your Prisma client here
-
-// export const submitFoundReport = async (req, res) => {
-//   const { shortCode } = req.params;
-//   const { latitude, longitude, accuracy, message, honeypot } = req.body;
-
-//   // 1. Check the honeypot (if the bot filled in a hidden field, just pretend it worked)
-//   if (honeypot) return res.status(200).json({ ok: true });
-
-//   // 2. Validate coordinates (as per the blueprint)
-//   if (latitude != null && (latitude < -90 || latitude > 90)) {
-//     return res.status(400).json({ error: "invalid coordinates" });
-//   }
-//   // ... (do the same for longitude)
-
-//   // 3. Make sure they actually sent a message
-//   if (!message?.trim()) {
-//     return res.status(400).json({ error: "message required" });
-//   }
-
-//   // 4. Generate the ipHash (like we discussed earlier)
-//   const ipHash = getIpHash(req);
-
-//   // 5. Finally, use Prisma to save to the database!
-//   try {
-//     // Find item by shortCode...
-//     // Create FoundReport and ScanEvent...
-//     // Send email alert (you can import an email service function here if you want)
-
-//     return res.status(200).json({ ok: true });
-//   } catch (err) {
-//     return res.status(500).json({ error: "Database error" });
-//   }
-// };
+    console.error(`Database error for item ${shortCode}:`, err);
+    // Fixed your "eraror" typo here
+    return res.status(500).json({ error: "Internal server error" });
+  }
+};

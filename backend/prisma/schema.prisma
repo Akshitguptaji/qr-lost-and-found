@@ -94,7 +94,7 @@ model FoundReport {
   longitude      Float?
   accuracyMeters Float? // render as a circle on the dashboard map, not a false-precision pin
 
-  message       String
+  message       String?
   finderContact String? // optional email/phone the finder chooses to leave
   status        ReportStatus @default(NEW)
   createdAt     DateTime     @default(now())

@@ -7,8 +7,14 @@ export const verifyTurnstile = async (
   next: NextFunction,
 ) => {
   const token = req.body.turnstileToken;
+  if (!token) {
+    return res.status(400).json({ error: "Missing CAPTCHA token." });
+  }
   const secretkey = process.env.TURNSTILE_SECRET_KEY;
-
+  if (!secretkey) {
+    throw new Error("CRITICAL: TURNSTILE_SECRET_KEY is missing.");
+  }
+  const rawIp = (req.headers["cf-connecting-ip"] as string) || req.ip;
   try {
     const response = await fetch(
       "https://challenges.cloudflare.com/turnstile/v0/siteverify",
@@ -21,6 +27,8 @@ export const verifyTurnstile = async (
 
           response: token,
           // The left side (response) is the name Cloudflare demands for the user's proof-of-humanity string. The right side (token) is the variable you created at the top of your function (const token = req.body.turnstileToken). You are slotting the user's token into Cloudflare's required response field.
+          remoteip: rawIp,
+          //Pass the IP back to Cloudflare for better bot detection
         }),
       },
     );
