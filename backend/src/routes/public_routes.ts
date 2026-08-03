@@ -8,8 +8,8 @@ const publicroutes = Router();
 
 publicroutes.post(
   "/:shortCode/submitreport",
-  verifyTurnstile,
   rateLimiter,
+  verifyTurnstile,
   submitFoundReport,
 );
 

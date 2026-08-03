@@ -3,11 +3,11 @@ import { prisma } from "../config/prisma.js";
 import nodemailer from "nodemailer";
 import type { FoundReport } from "@prisma/client";
 
-
 // Set up the Nodemailer transporter using Gmail
 // Do this OUTSIDE the function so it doesn't rebuild the connection every single time
 const transporter = nodemailer.createTransport({
-  service: "gmail",
+  host: "smtp.ethereal.email",
+  port: 587,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
@@ -27,14 +27,12 @@ export interface NotificationParams {
 }
 
 export const sendOwnerNotification = async (params: NotificationParams) => {
-  
-
   try {
     // Destructure reportData for cleaner code inside the HTML
     const { id, message, finderContact } = params.reportData;
 
     // 1. Send the email via Nodemailer
-    await transporter.sendMail({
+    const info = await transporter.sendMail({
       from: `"FoundAlert" <${process.env.EMAIL_USER}>`, // Uses your verified Gmail address
       to: params.email,
       subject: `Someone found your ${params.itemName}!`,
@@ -45,12 +43,14 @@ export const sendOwnerNotification = async (params: NotificationParams) => {
         <p><a href="${frontendUrl}/dashboard/reports/${id}">Click here to view the exact location and details</a></p>
       `,
     });
-
+    // console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+    // console.log("Message sent: %s", info.messageId);
     // 2. If successful, mark as SENT, record the time, and increment attempts
     await prisma.notificationLog.update({
       where: { id: params.logId },
       data: {
         status: "SENT",
+        providerId: info.messageId,
         sentAt: new Date(),
         attempts: { increment: 1 },
       },

@@ -51,9 +51,10 @@ export const submitFoundReport = async (
       finderContact,
       ipHash,
       userAgent,
+      
     });
 
-    return res.status(200).json({ ok: true });
+    return res.status(200).json({ okk: true });
   } catch (err: any) {
     if (err.message === "ITEM_NOT_FOUND") {
       return res.status(404).json({ error: "Invalid QR code" });

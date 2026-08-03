@@ -5,5 +5,5 @@ import publicroutes from "../routes/public_routes.js";
 const router = Router();
 // router.use("/api/post", Postroutes);
 router.use("/api/items", itemroutes);
-router.use("api/submitreport", publicroutes);
+router.use("/api/submitreport", publicroutes);
 export default router;

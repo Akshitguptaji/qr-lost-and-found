@@ -35,10 +35,12 @@ enum NotificationChannel {
 }
 
 enum NotificationStatus {
-  PENDING
+PENDING
+  PROCESSING
   SENT
+  DELIVERED
   FAILED
-}
+  }
 
 // ----------------------- Models -----------------------
 
@@ -113,6 +115,7 @@ model NotificationLog {
   attempts  Int                 @default(0)
   lastError String?
   sentAt    DateTime?
+  providerId  String?            @unique
   createdAt DateTime            @default(now())
 
   @@index([reportId])

@@ -6,6 +6,9 @@ export const verifyTurnstile = async (
   res: Response,
   next: NextFunction,
 ) => {
+  if (process.env.NODE_ENV === "development") {
+    return next();
+  }
   const token = req.body.turnstileToken;
   if (!token) {
     return res.status(400).json({ error: "Missing CAPTCHA token." });
