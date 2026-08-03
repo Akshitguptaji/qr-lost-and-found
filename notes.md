@@ -12,3 +12,6 @@ Controller(The Waiter / Traffic Cop): Handles the web traffic.
 Rule: The waiter never cooks the food.
 
 Routes: Maps the URL to the Controller."
+
+use ehernal email , for fake smtp
+use resnd in sending ht maill at th etime of deployment , onlocalm/c uu canuse th enodemailer
