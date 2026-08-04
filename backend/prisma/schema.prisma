@@ -129,7 +129,7 @@ model WebhookConfig {
   // Generation: When the User creates the webhook, your backend generates a strong, random string (the secret). You save it here in the database and show it to the User exactly once.
 
   // Signing (HMAC): When a scan happens, your Express backend takes the payload (the JSON data it is about to send) and mixes it mathematically with this secret using an HMAC (Hash-based Message Authentication Code) algorithm. This generates a unique signature.
-
+  failureCount Int     @default(0)
   // Verification: Your backend sends the payload and includes the signature in the HTTP headers (e.g., X-Webhook-Signature). The User's receiving server uses their copy of the secret to calculate the signature. If the signatures match, they know the request came strictly from your app and hasn't been tampered with.
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
