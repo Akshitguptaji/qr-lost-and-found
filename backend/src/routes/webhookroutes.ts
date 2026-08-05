@@ -1,9 +1,11 @@
-import { Router } from "express";
-import { handleResendWebhook } from "../controllers/wehbhook.controller.js";
+//we r not using this rn cause i dont understand how to use it rn, but we will use it in the future.
 
-const router = Router();
+// import { Router } from "express";
+// import { handleResendWebhook } from "../controllers/wehbhook.controller.js";
 
-// Traffic cop: "POST to /resend? Go to handleResendWebhook."
-router.post("/", handleResendWebhook);
+// const router = Router();
 
-export default router;
+// // Traffic cop: "POST to /resend? Go to handleResendWebhook."
+// router.post("/", handleResendWebhook);
+
+// export default router;

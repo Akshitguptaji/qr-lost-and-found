@@ -65,24 +65,29 @@ export const createReportService = async (
 
   // 3. Fire off the email asynchronously (Fire-and-Forget)
   // FIXED: Using item.user.email to match the Prisma include
-  sendOwnerNotification({
-    email: item.user.email,
-    itemName: item.label,
-    reportData: report,
-    logId: notificationLog.id,
-  }).catch((error: any) => {
-    console.error(`Failed to send email for report ${report.id}:`, error);
-  });
-  const webhookPayload = {
-    event: "item.scanned",
-    itemId: item.id,
-    itemName: item.label, // Using item.label based on your schema
-    message: report.message,
-    contact: report.finderContact,
-    scannedAt: new Date().toISOString(),
-  };
-  dispatchOwnerWebhook(item.userId, webhookPayload).catch((err: any) => {
-    console.error("Background webhook dispatch failed:", err);
-  });
-  return report;
+
+  /**
+   * this is a webhook dispatch to the owner of the item, notifying them that their item has been found.
+   * we r not using this rn cause i dont understand how to use it rn, but we will use it in the future.
+   */
+  // sendOwnerNotification({
+  //   email: item.user.email,
+  //   itemName: item.label,
+  //   reportData: report,
+  //   logId: notificationLog.id,
+  // }).catch((error: any) => {
+  //   console.error(`Failed to send email for report ${report.id}:`, error);
+  // });
+  // const webhookPayload = {
+  //   event: "item.scanned",
+  //   itemId: item.id,
+  //   itemName: item.label, // Using item.label based on your schema
+  //   message: report.message,
+  //   contact: report.finderContact,
+  //   scannedAt: new Date().toISOString(),
+  // };
+  // dispatchOwnerWebhook(item.userId, webhookPayload).catch((err: any) => {
+  //   console.error("Background webhook dispatch failed:", err);
+  // });
+  // return report;
 };
