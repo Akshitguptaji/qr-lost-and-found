@@ -15,3 +15,18 @@ Routes: Maps the URL to the Controller."
 
 use ehernal email , for fake smtp
 use resnd in sending ht maill at th etime of deployment , onlocalm/c uu canuse th enodemailer
+
+src/
+├── api/ # Think of this as your frontend "Services".
+│ # ALL fetch/axios calls to your Express backend go here.
+├── assets/ # Static files like your style.css and any images.
+├── components/ # Small, reusable UI pieces.
+│ ├── ui/ # shadcn-vue will automatically install its components here.
+│ └── shared/ # Your custom reusable pieces (like a LoadingSpinner or NavBar).
+├── lib/ # Helper functions. shadcn-vue will create a utils.ts here.
+├── router/ # Frontend "Routes". Maps URLs to specific Views.
+├── views/ # Think of these as your frontend "Controllers" (entire pages).
+│ ├── public/ # E.g., FinderPage.vue, LandingPage.vue
+│ └── secure/ # E.g., OwnerDashboard.vue, Login.vue
+├── App.vue # The master wrapper for your whole app.
+└── main.ts # The entry file that boots up Vue.
