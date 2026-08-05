@@ -123,7 +123,7 @@ model NotificationLog {
 
 model WebhookConfig {
   id     String @id @default(cuid())
-  userId String // FK to Better Auth's User.id
+  userId String  @unique // FK to Better Auth's User.id
   url    String
   secret String // HMAC signing secret, generated server-side, shown to the owner once
   // Generation: When the User creates the webhook, your backend generates a strong, random string (the secret). You save it here in the database and show it to the User exactly once.

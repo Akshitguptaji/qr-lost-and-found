@@ -1,5 +1,6 @@
 import { prisma } from "../config/prisma.js";
 import type { ReportStatus } from "@prisma/client";
+import { dispatchOwnerWebhook } from "../services/webhook.dispatch.services.js";
 import { sendOwnerNotification } from "./email.service..js";
 
 // Define exactly what the service expects to receive
@@ -72,6 +73,16 @@ export const createReportService = async (
   }).catch((error: any) => {
     console.error(`Failed to send email for report ${report.id}:`, error);
   });
-
+  const webhookPayload = {
+    event: "item.scanned",
+    itemId: item.id,
+    itemName: item.label, // Using item.label based on your schema
+    message: report.message,
+    contact: report.finderContact,
+    scannedAt: new Date().toISOString(),
+  };
+  dispatchOwnerWebhook(item.userId, webhookPayload).catch((err: any) => {
+    console.error("Background webhook dispatch failed:", err);
+  });
   return report;
 };
