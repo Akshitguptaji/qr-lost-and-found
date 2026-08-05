@@ -70,14 +70,14 @@ export const createReportService = async (
    * this is a webhook dispatch to the owner of the item, notifying them that their item has been found.
    * we r not using this rn cause i dont understand how to use it rn, but we will use it in the future.
    */
-  // sendOwnerNotification({
-  //   email: item.user.email,
-  //   itemName: item.label,
-  //   reportData: report,
-  //   logId: notificationLog.id,
-  // }).catch((error: any) => {
-  //   console.error(`Failed to send email for report ${report.id}:`, error);
-  // });
+  sendOwnerNotification({
+    email: item.user.email,
+    itemName: item.label,
+    reportData: report,
+    logId: notificationLog.id,
+  }).catch((error: any) => {
+    console.error(`Failed to send email for report ${report.id}:`, error);
+  });
   // const webhookPayload = {
   //   event: "item.scanned",
   //   itemId: item.id,
@@ -89,5 +89,5 @@ export const createReportService = async (
   // dispatchOwnerWebhook(item.userId, webhookPayload).catch((err: any) => {
   //   console.error("Background webhook dispatch failed:", err);
   // });
-  // return report;
+  return report;
 };
