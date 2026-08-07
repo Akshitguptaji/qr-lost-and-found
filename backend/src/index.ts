@@ -4,8 +4,14 @@ import { toNodeHandler } from "better-auth/node";
 import "dotenv/config";
 import { auth } from "../src/config/auth.js";
 import router from "../src/routes/main_routes.js";
+import cors from "cors";
 const app = express();
-
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL || "http://localhost:5173", // Your Vue app's exact URL
+    credentials: true, // MANDATORY for Better Auth to set session cookies
+  }),
+);
 app.use(express.json());
 
 const PORT = process.env.PORT || 7000;
