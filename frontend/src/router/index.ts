@@ -28,6 +28,12 @@ const router = createRouter({
     //   name: "finder",
     //   component: () => import("../views/public/FinderPage.vue"),
     // },
+    {
+      path: "/profile",
+      name: "Profile",
+      component: () => import("../views/secure/Profile.vue"),
+      meta: { requiresAuth: true },
+    },
   ],
 });
 router.beforeEach(async (to, from, next) => {
