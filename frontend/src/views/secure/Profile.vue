@@ -22,7 +22,8 @@ onMounted(async () => {
     userName.value = data?.user.name as string;
     userEmail.value = data?.user.email as string;
   } catch (error) {
-    console.eror
+    console.log("hiii");
+    console.log("hi user")
     console.error("profile error:", error);
   } finally {
     isLoading.value = false;
