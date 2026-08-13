@@ -80,7 +80,7 @@ const updatePassword = async () => {
           &larr; Back to Dashboard
         </button>
         <h1>Account Settings</h1>
-        <p>Manage your profile and security preferences.</p>
+        <p>Manage your profile & security preferences.</p>
       </header>
 
       <div class="settings-card">
