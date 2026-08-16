@@ -27,7 +27,7 @@ const handleLogout = async () => {
     await auth.signOut();
     router.push("/login");
   } catch (error) {
-    console.error("logout of error:", error);
+    console.error("logout because of error:", error);
   }
 };
 </script>
