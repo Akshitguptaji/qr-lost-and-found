@@ -125,7 +125,7 @@ const updatePassword = async () => {
           <div class="section-content">
             <div class="action-row">
               <span class="status-text"
-                >Password requires at least 8 characters.</span
+                >Password requires at least 8 characters</span
               >
               <button
                 @click="toggleForm"
