@@ -114,9 +114,7 @@ const handleSubmit = async () => {
           />
         </div>
 
-        <p v-if="errorMessage" class="text-red-500 text-sm text-center">
-          {{ errorMessage }}
-        </p>
+        <p v-if="errorMessage" class="text-red-500 text-sm text-center"></p>
         <button
           type="submit"
           :disabled="isloading"

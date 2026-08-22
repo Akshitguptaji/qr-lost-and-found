@@ -22,8 +22,6 @@ onMounted(async () => {
     userName.value = data?.user.name as string;
     userEmail.value = data?.user.email as string;
   } catch (error) {
-    console.log("hiii");
-    console.log("hi user");
     console.error("profile error:", error);
   } finally {
     isLoading.value = false;
@@ -500,3 +498,6 @@ input:focus {
   }
 }
 </style>
+<!-- ref = The box that makes real-time screen updates work.
+
+.value = Opening the box to get the actual text out so you can send it to your database. -->

@@ -180,3 +180,16 @@ const handleLogout = async () => {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 </style>
+// class ke sath bhi condition lga skte ho , that i scalled dynamic class
+binding in vue.js, for example you can use :class="{ 'active': isActive }" where
+isActive is a boolean variable in your component's data., the active class will
+be applied to the element when isActive is true, and removed when isActive is
+false. This allows you to dynamically change the styling of elements based on
+<!-- the component's state or props.
+<router-link> = A clickable link in HTML that doesn't refresh the page.
+
+ <router-view> = The blank canvas where Vue paints the page you just navigated to.
+
+useRouter() = The tool to redirect users via JavaScript.
+
+useRoute() = The tool to read the current URL. -->
