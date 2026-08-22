@@ -23,7 +23,7 @@ onMounted(async () => {
     userEmail.value = data?.user.email as string;
   } catch (error) {
     console.log("hiii");
-    console.log("hi user")
+    console.log("hi user");
     console.error("profile error:", error);
   } finally {
     isLoading.value = false;
@@ -43,7 +43,7 @@ const updatePassword = async () => {
     return;
   }
   if (newPassword.value.length < 8) {
-    passwordMessage.value = "New password must be at least 8 characters long.";
+    passwordMessage.value = "New password must be  least 8 characters long.";
     return;
   }
   isChangingPassword.value = true;
