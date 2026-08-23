@@ -7,7 +7,14 @@ const router = useRouter();
 const name = ref("");
 const email = ref("");
 const isloading = ref(true);
-// Set to true initially to show loading state while checking session
+const itemcreation = ref({
+  category: "", // Placeholder for future data fetching, currently unused
+  label: "", // Placeholder for future data fetching, currently unused
+  description: "", // Placeholder for future data fetching, currently unused
+  status: "", // Placeholder for future data fetching, currently unused
+  //label, category, description, status
+  // Set to true initially to show loading state while checking session
+});
 onMounted(async () => {
   try {
     const { data, error } = await auth.getSession();
@@ -28,6 +35,38 @@ const handleLogout = async () => {
     router.push("/login");
   } catch (error) {
     console.error("logout because error:", error);
+  }
+};
+
+const createItem = async () => {
+  try {
+    const { data, error } = await auth.getSession();
+    if (error || !data?.session) {
+      console.error("No active session found!");
+      return; // Stop the function if they aren't logged in
+    }
+    const token = data.session.userId;
+    const payload = {
+      ...itemcreation.value,
+      userId: `${token}`,
+    };
+    const response = await fetch(import.meta.env.VITE_API_URL + "/api/items", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+    console.log(response);
+  } catch (error) {
+    console.error("create item error:", error);
+  } finally {
+    itemcreation.value = {
+      category: "",
+      label: "",
+      description: "",
+      status: "",
+    };
   }
 };
 </script>
@@ -56,8 +95,50 @@ const handleLogout = async () => {
         </header>
         <main class="content">
           <h1>Dashboard Overview</h1>
+          <br />button to add new item
           <div class="data-card">
-            <p>This is where your database tables or stats will go.</p>
+            form to add new item
+            <form @submit.prevent="createItem">
+              <label for="itemname">Item Name:</label>
+              <input
+                type="text"
+                id="itemname"
+                v-model="itemcreation.label"
+                required
+              />
+              <label for="category">Category:</label>
+              <input
+                type="text"
+                id="category"
+                v-model="itemcreation.category"
+                required
+              />
+              <label for="description">Description:</label>
+              <input
+                type="text "
+                id="description "
+                v-model="itemcreation.description"
+                required
+              />
+              <label for="status">Status:</label>
+
+              <input
+                type="radio"
+                id="status"
+                value="LOST"
+                v-model="itemcreation.status"
+              />
+              LOST
+              <input
+                type="radio"
+                id="status"
+                value="ACTIVE"
+                v-model="itemcreation.status"
+              />
+              ACTIVE
+              <br />
+              <button type="submit">Create New Item</button>
+            </form>
           </div>
         </main>
       </div>
@@ -180,7 +261,7 @@ const handleLogout = async () => {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 </style>
-// class ke sath bhi condition lga skte ho , that i scalled dynamic class
+//// class ke sath bhi condition lga skte ho , that i scalled dynamic class
 binding in vue.js, for example you can use :class="{ 'active': isActive }" where
 isActive is a boolean variable in your component's data., the active class will
 be applied to the element when isActive is true, and removed when isActive is
@@ -191,5 +272,6 @@ false. This allows you to dynamically change the styling of elements based on
  <router-view> = The blank canvas where Vue paints the page you just navigated to.
 
 useRouter() = The tool to redirect users via JavaScript.
+
 
 useRoute() = The tool to read the current URL. -->
