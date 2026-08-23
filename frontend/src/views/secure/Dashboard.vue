@@ -45,15 +45,17 @@ const createItem = async () => {
       console.error("No active session found!");
       return; // Stop the function if they aren't logged in
     }
-    const token = data.session.userId;
+    const token = data.session.token;
+    const userid = data.session.userId;
     const payload = {
       ...itemcreation.value,
-      userId: `${token}`,
+      userId: `${userid}`,
     };
     const response = await fetch(import.meta.env.VITE_API_URL + "/api/items", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(payload),
     });
