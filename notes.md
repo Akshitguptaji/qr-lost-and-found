@@ -30,3 +30,9 @@ src/
 │ └── secure/ # E.g., OwnerDashboard.vue, Login.vue
 ├── App.vue # The master wrapper for your whole app.
 └── main.ts # The entry file that boots up Vue.
+
+toggle btn:- 
+1:- create a reactive btn using ref.
+( and make it off using false)
+2:- use a btn to fire an event ( click event ) to flip th evalue ( form false to true)
+3:-than use this valuse in v-if ( in your html) 
