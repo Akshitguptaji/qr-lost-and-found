@@ -9,7 +9,10 @@ const email = ref("");
 const isloading = ref(true);
 const qrcode = ref("");
 const showForm = ref(false); // Controls the visibility of the form
-const iscreateitem = ref(false); // Controls the state of item creation
+const iscreateitem = ref(false);
+const printQRCode = () => {
+  window.print();
+}; // Controls the state of item creation
 const itemcreation = ref({
   category: "", // Placeholder for future data fetching, currently unused
   label: "", // Placeholder for future data fetching, currently unused
@@ -185,6 +188,13 @@ const createItem = async () => {
               <h3>Item Created!</h3>
               <p>Here is your QR Code:</p>
               <img :src="qrcode" alt="QR Code" class="qr-image" />
+              <button
+                @click="printQRCode"
+                class="submit-btn print-btn"
+                style="margin-top: 15px"
+              >
+                Print QR Code
+              </button>
             </div>
           </div>
         </main>
@@ -445,6 +455,33 @@ const createItem = async () => {
 /* Stop the hover effect when it is disabled */
 .submit-btn:disabled:hover {
   background-color: #a1a1aa;
+}
+/* 🖨️ PRINT STYLES */
+@media print {
+  /* 1. Hide the sidebar, header, form, title, and the print button itself! */
+  .sidebar,
+  .top-header,
+  .dashboard-header,
+  .item-form,
+  .data-card h2,
+  .print-btn {
+    display: none !important;
+  }
+
+  /* 2. Remove the gray background from the main wrapper */
+  .dashboard-wrapper,
+  .main-area {
+    background-color: white !important;
+    height: auto !important;
+  }
+
+  /* 3. Remove the border around the card so it looks like a clean label */
+  .data-card {
+    border: none !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
 }
 </style>
 //// class ke sath bhi condition lga skte ho , that i scalled dynamic class
