@@ -7,6 +7,8 @@ const router = useRouter();
 const name = ref("");
 const email = ref("");
 const isloading = ref(true);
+const qrcode = ref("");
+const showForm = ref(false); // Placeholder for future functionality, currently unused
 const itemcreation = ref({
   category: "", // Placeholder for future data fetching, currently unused
   label: "", // Placeholder for future data fetching, currently unused
@@ -45,21 +47,27 @@ const createItem = async () => {
       console.error("No active session found!");
       return; // Stop the function if they aren't logged in
     }
-    const token = data.session.token;
+    console.log(data.session);
+    // const token = data.session.token;
     const userid = data.session.userId;
     const payload = {
       ...itemcreation.value,
       userId: `${userid}`,
     };
-    const response = await fetch(import.meta.env.VITE_API_URL + "/api/items", {
+    // console.log(payload);
+    const response = await fetch(import.meta.env.VITE_API_URL + "/api/items/", {
       method: "POST",
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(payload),
     });
-    console.log(response);
+    const responseData = await response.json();
+    qrcode.value = responseData.qrcode;
+    console.log("successfully created item");
+    console.log(qrcode.value);
+    // console.log("successfully created item:", await response.json());
   } catch (error) {
     console.error("create item error:", error);
   } finally {
@@ -69,6 +77,7 @@ const createItem = async () => {
       description: "",
       status: "",
     };
+    // qrcode.value = "";
   }
 };
 </script>
@@ -96,51 +105,82 @@ const createItem = async () => {
           <button @click="handleLogout" class="logout-btn">Log Out</button>
         </header>
         <main class="content">
-          <h1>Dashboard Overview</h1>
-          <br />button to add new item
-          <div class="data-card">
-            form to add new item
-            <form @submit.prevent="createItem">
-              <label for="itemname">Item Name:</label>
-              <input
-                type="text"
-                id="itemname"
-                v-model="itemcreation.label"
-                required
-              />
-              <label for="category">Category:</label>
-              <input
-                type="text"
-                id="category"
-                v-model="itemcreation.category"
-                required
-              />
-              <label for="description">Description:</label>
-              <input
-                type="text "
-                id="description "
-                v-model="itemcreation.description"
-                required
-              />
-              <label for="status">Status:</label>
+          <div class="dashboard-header">
+            <div>
+              <h1>Dashboard Overview</h1>
+              <p>This is your dashboard. You can view your items here.</p>
+            </div>
+            <!-- Toggle Button -->
+            <button @click="showForm = !showForm" class="toggle-btn">
+              {{ showForm ? "Cancel" : "+ Add New Item" }}
+            </button>
+          </div>
 
-              <input
-                type="radio"
-                id="status"
-                value="LOST"
-                v-model="itemcreation.status"
-              />
-              LOST
-              <input
-                type="radio"
-                id="status"
-                value="ACTIVE"
-                v-model="itemcreation.status"
-              />
-              ACTIVE
-              <br />
-              <button type="submit">Create New Item</button>
+          <!-- Form Card (Only shows if showForm is true) -->
+          <div v-if="showForm" class="data-card form-card">
+            <h2>Add New Item</h2>
+
+            <form @submit.prevent="createItem" class="item-form">
+              <div class="form-group">
+                <label for="itemname">Item Name</label>
+                <input
+                  type="text"
+                  id="itemname"
+                  v-model="itemcreation.label"
+                  required
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="category">Category</label>
+                <input
+                  type="text"
+                  id="category"
+                  v-model="itemcreation.category"
+                  required
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="description">Description</label>
+                <input
+                  type="text"
+                  id="description"
+                  v-model="itemcreation.description"
+                  required
+                />
+              </div>
+
+              <div class="form-group">
+                <label>Status</label>
+                <div class="radio-group">
+                  <label class="radio-label">
+                    <input
+                      type="radio"
+                      value="LOST"
+                      v-model="itemcreation.status"
+                    />
+                    LOST
+                  </label>
+                  <label class="radio-label">
+                    <input
+                      type="radio"
+                      value="ACTIVE"
+                      v-model="itemcreation.status"
+                    />
+                    ACTIVE
+                  </label>
+                </div>
+              </div>
+
+              <button type="submit" class="submit-btn">Create New Item</button>
             </form>
+
+            <div v-if="qrcode" class="qr-result-box">
+              <h3>Item Created!</h3>
+              <p>Here is your QR Code:</p>
+              <img :src="qrcode" alt="QR Code" class="qr-image" />
+            </div>
           </div>
         </main>
       </div>
@@ -261,6 +301,134 @@ const createItem = async () => {
   border-radius: 8px;
   border: 1px solid #e4e4e7;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+/* Form Styling */
+.data-card h2 {
+  margin-bottom: 20px;
+  color: #18181b;
+  font-size: 1.25rem;
+}
+
+.item-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-group label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #3f3f46;
+}
+
+.form-group input[type="text"] {
+  padding: 10px 12px;
+  border: 1px solid #d4d4d8;
+  border-radius: 6px;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.form-group input[type="text"]:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Radio Buttons */
+.radio-group {
+  display: flex;
+  gap: 20px;
+}
+
+.radio-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+/* Submit Button */
+.submit-btn {
+  margin-top: 10px;
+  background-color: #18181b;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.submit-btn:hover {
+  background-color: #27272a;
+}
+
+/* QR Code Box */
+.qr-result-box {
+  margin-top: 30px;
+  padding: 20px;
+  border: 2px dashed #d4d4d8;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #fafafa;
+}
+
+.qr-result-box h3 {
+  color: #16a34a;
+  margin-bottom: 4px;
+}
+
+.qr-result-box p {
+  font-size: 0.9rem;
+  color: #71717a;
+  margin-bottom: 15px;
+}
+
+.qr-image {
+  max-width: 200px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Header layout */
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+/* The new toggle button */
+.toggle-btn {
+  background-color: #3b82f6; /* Nice blue */
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.toggle-btn:hover {
+  background-color: #2563eb;
+}
+
+/* Stops the form from stretching the whole screen */
+.form-card {
+  max-width: 600px;
+  margin: 0; /* Aligns it to the left */
 }
 </style>
 //// class ke sath bhi condition lga skte ho , that i scalled dynamic class
