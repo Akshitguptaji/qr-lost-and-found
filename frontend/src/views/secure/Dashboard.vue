@@ -8,7 +8,8 @@ const name = ref("");
 const email = ref("");
 const isloading = ref(true);
 const qrcode = ref("");
-const showForm = ref(false); // Placeholder for future functionality, currently unused
+const showForm = ref(false); // Controls the visibility of the form
+const iscreateitem = ref(false); // Controls the state of item creation
 const itemcreation = ref({
   category: "", // Placeholder for future data fetching, currently unused
   label: "", // Placeholder for future data fetching, currently unused
@@ -41,6 +42,7 @@ const handleLogout = async () => {
 };
 
 const createItem = async () => {
+  iscreateitem.value = true; // Set to true to indicate item creation is in progress
   try {
     const { data, error } = await auth.getSession();
     if (error || !data?.session) {
@@ -77,6 +79,7 @@ const createItem = async () => {
       description: "",
       status: "",
     };
+    iscreateitem.value = false; // Reset the item creation state
     // qrcode.value = "";
   }
 };
@@ -173,7 +176,9 @@ const createItem = async () => {
                 </div>
               </div>
 
-              <button type="submit" class="submit-btn">Create New Item</button>
+              <button type="submit" :disabled="iscreateitem" class="submit-btn">
+                Create New Item
+              </button>
             </form>
 
             <div v-if="qrcode" class="qr-result-box">
@@ -429,6 +434,17 @@ const createItem = async () => {
 .form-card {
   max-width: 600px;
   margin: 0; /* Aligns it to the left */
+}
+/* Disabled state for the submit button */
+.submit-btn:disabled {
+  background-color: #a1a1aa; /* Grays it out */
+  cursor: not-allowed; /* Changes the mouse pointer to a red circle/slash */
+  opacity: 0.7; /* Makes it look slightly faded */
+}
+
+/* Stop the hover effect when it is disabled */
+.submit-btn:disabled:hover {
+  background-color: #a1a1aa;
 }
 </style>
 //// class ke sath bhi condition lga skte ho , that i scalled dynamic class
