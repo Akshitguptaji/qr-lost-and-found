@@ -10,6 +10,18 @@ const isloading = ref(true);
 const qrcode = ref("");
 const showForm = ref(false); // Controls the visibility of the form
 const iscreateitem = ref(false);
+const getqr = ref("");
+const getscode = ref(false);
+interface ItemCreation {
+  id: number;
+  category: string;
+  label: string;
+  description: string;
+  status: string;
+  shortCode: string;
+  qrImage?: string;
+}
+const itemlist = ref<ItemCreation[]>([]); // Placeholder for future data fetching, currently unused
 const printQRCode = () => {
   window.print();
 }; // Controls the state of item creation
@@ -29,12 +41,35 @@ onMounted(async () => {
     }
     name.value = data?.user.name as string;
     email.value = data?.user.email as string;
+    await getitem();
   } catch (error) {
     console.error("dashboard error:", error);
   } finally {
     isloading.value = false;
   }
 });
+//get all item register by the user:-
+const getitem = async () => {
+  const { data } = await auth.getSession();
+  if (!data?.session) {
+    console.log("can not get the item");
+    return;
+  }
+  const userId = data.session.userId;
+  const response = await fetch(import.meta.env.VITE_API_URL + "/api/items/", {
+    method: "GET",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  const item = await response.json();
+  // console.log("fetched items:", item);
+  // console.log("fetched items:", item.message);
+  itemlist.value = item.message; // Store the fetched items in the itemlist ref
+  // console.log("fetched items:", itemlist.value);
+  // console.log("fetched items:", itemlist.value[0]);
+};
 const handleLogout = async () => {
   try {
     await auth.signOut();
@@ -86,6 +121,67 @@ const createItem = async () => {
     // qrcode.value = "";
   }
 };
+const getqrcode = async (item: any) => {
+  getscode.value = true;
+  const { data, error } = await auth.getSession();
+  if (error || !data?.session) {
+    console.error("No active session found!");
+    return; // Stop the function if they aren't logged in
+  }
+
+  try {
+    const shortCode = item.shortCode;
+    console.log("shortCode:", shortCode);
+    // const shortCode =await fetch(); // Assuming you want to use the userId as the shortCode
+    const reponse = await fetch(
+      import.meta.env.VITE_API_URL + `/api/items/${shortCode}/qrcode`,
+      {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      },
+    );
+    const responseData = await reponse.json();
+    // console.log("fetched qrcode:", responseData);
+    item.qrImage = responseData.qrCode;
+
+    // console.log("fetched qrcode:", qrcode.value);
+  } catch (error) {
+    console.error("get qrcode error:", error);
+  } finally {
+    getscode.value = false;
+  }
+};
+const ArchieveItem = async (item: any) => {
+  const { data, error } = await auth.getSession();
+  if (error || !data?.session) {
+    console.error("No active session found!");
+    return; // Stop the function if they aren't logged in
+  }
+  try {
+    const itemId = item.id;
+    const userId = data.session.userId;
+
+    const response = await fetch(
+      import.meta.env.VITE_API_URL + `/api/items/${itemId}/archive`,
+      {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ userId }),
+      },
+    );
+    const responseData = await response.json();
+    console.log("Archieve item response:", responseData);
+  } catch (error) {
+    console.error("Archieve item error:", error);
+  }
+};
+// const updatestatus = async () => {};
 </script>
 <template>
   <main>
@@ -196,6 +292,72 @@ const createItem = async () => {
                 Print QR Code
               </button>
             </div>
+          </div>
+          <div class="data-card table-container">
+            <table class="items-table">
+              <thead>
+                <tr>
+                  <th>Item Name</th>
+                  <th>Category</th>
+                  <th>Description</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <tr v-for="item in itemlist" :key="item.id">
+                  <td>{{ item.label }}</td>
+                  <td>{{ item.category }}</td>
+                  <td>{{ item.description }}</td>
+                  <td>
+                    <strong>{{ item.status }}</strong>
+                  </td>
+                  <td>
+                    <button
+                      v-if="!item.qrImage"
+                      @click="getqrcode(item)"
+                      class="submit-btn"
+                      style="background-color: #3b82f6; margin-right: 10px"
+                    >
+                      Get QR Code
+                    </button>
+                    <div v-if="item.qrImage">
+                      <img :src="item.qrImage" alt="QR Code" class="qr-image" />
+                      <button
+                        @click="printQRCode"
+                        class="submit-btn print-btn"
+                        style="margin-top: 15px"
+                      >
+                        Print QR Code
+                      </button>
+                    </div>
+                    <!-- <button
+                      @click="updatestatus(item)"
+                      class="submit-btn"
+                      style="background-color: #3b82f6; margin-right: 10px"
+                    > -->
+
+                    <!-- </button> -->
+                    <button
+                      @click="ArchieveItem(item)"
+                      class="submit-btn"
+                      style="background-color: #3b82f6; margin-right: 10px"
+                    >
+                      Archieved Item
+                    </button>
+
+                    <!-- <button
+                      @click="edititem(item)"
+                      class="submit-btn"
+                      style="background-color: #3b82f6; margin-right: 10px"
+                    >
+                      Edit Item
+                    </button> -->
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </main>
       </div>
@@ -482,6 +644,45 @@ const createItem = async () => {
     margin: 0 !important;
     padding: 0 !important;
   }
+}
+/* --- TABLE STYLING --- */
+.table-container {
+  margin-top: 30px;
+  overflow-x: auto; /* Adds a scrollbar if the table gets too wide on small screens */
+}
+
+.items-table {
+  width: 100%;
+  border-collapse: collapse; /* Merges double borders into clean single lines */
+  text-align: left;
+}
+
+/* Headers and Cells */
+.items-table th,
+.items-table td {
+  padding: 16px;
+  border-bottom: 1px solid #e4e4e7;
+}
+
+/* Header specific styling */
+.items-table th {
+  background-color: #fafafa;
+  font-weight: 600;
+  color: #52525b;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+}
+
+/* Hover effect for rows */
+.items-table tbody tr:hover {
+  background-color: #f4f4f5; /* Highlights the row slightly when you mouse over it */
+  transition: background-color 0.2s;
+}
+
+/* Remove bottom border from the very last row */
+.items-table tbody tr:last-child td {
+  border-bottom: none;
 }
 </style>
 //// class ke sath bhi condition lga skte ho , that i scalled dynamic class
