@@ -22,8 +22,46 @@ interface ItemCreation {
   qrImage?: string;
 }
 const itemlist = ref<ItemCreation[]>([]); // Placeholder for future data fetching, currently unused
-const printQRCode = () => {
-  window.print();
+const printSpecificQRCode = (item: any) => {
+  const base64 = item.qrImage;
+  const printWindow = window.open("", "_blank");
+  if (!printWindow) {
+    console.error("Popup blocked! Allow popups to print.");
+    return;
+  }
+  printWindow.document.head.innerHTML = `
+    <title>Print Label</title>
+    <style>
+      body { display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+      img { width: 200px; height: 200px; }
+    </style>
+  `;
+  printWindow.document.body.innerHTML = `<img src="${base64}" />`;
+  setTimeout(() => {
+    printWindow.print();
+    item.qrImage = undefined; // Automatically close the invisible window when done
+    printWindow.close();
+  }, 250);
+};
+const printQRCode = (base64: string) => {
+  const printWindow = window.open("", "_blank");
+  if (!printWindow) {
+    console.error("Popup blocked! Allow popups to print.");
+    return;
+  }
+  printWindow.document.head.innerHTML = `
+    <title>Print Label</title>
+    <style>
+      body { display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+      img { width: 200px; height: 200px; }
+    </style>
+  `;
+  printWindow.document.body.innerHTML = `<img src="${base64}" />`;
+  setTimeout(() => {
+    printWindow.print();
+    // qrcode = ""; // Clear the base64 string after printing
+    printWindow.close();
+  }, 250);
 }; // Controls the state of item creation
 const itemcreation = ref({
   category: "", // Placeholder for future data fetching, currently unused
@@ -103,6 +141,7 @@ const createItem = async () => {
       },
       body: JSON.stringify(payload),
     });
+    await getitem(); // Refresh the item list after creating a new item
     const responseData = await response.json();
     qrcode.value = responseData.qrcode;
     console.log("successfully created item");
@@ -167,7 +206,7 @@ const ArchieveItem = async (item: any) => {
     const response = await fetch(
       import.meta.env.VITE_API_URL + `/api/items/${itemId}/archive`,
       {
-        method: "POST",
+        method: "PATCH",
         credentials: "include",
         headers: {
           "Content-Type": "application/json",
@@ -175,12 +214,32 @@ const ArchieveItem = async (item: any) => {
         body: JSON.stringify({ userId }),
       },
     );
+    if (!response.ok) {
+      throw new Error(`Failed to archive item: ${response.statusText}`);
+    }
+    await getitem();
     const responseData = await response.json();
     console.log("Archieve item response:", responseData);
   } catch (error) {
     console.error("Archieve item error:", error);
   }
 };
+
+const edititem = async (item: any) => {
+  const { data, error } = await auth.getSession();
+  if (error || !data?.session) {
+    console.error("No active session found!");
+    return; // Stop the function if they aren't logged in
+  }
+  try {
+  
+  } catch (error) {
+    console.error("Edit item error:", error);
+  }
+  // Implement the logic to edit the item here
+  console.log("Edit item:", item);
+};
+
 // const updatestatus = async () => {};
 </script>
 <template>
@@ -285,7 +344,7 @@ const ArchieveItem = async (item: any) => {
               <p>Here is your QR Code:</p>
               <img :src="qrcode" alt="QR Code" class="qr-image" />
               <button
-                @click="printQRCode"
+                @click="printQRCode(qrcode)"
                 class="submit-btn print-btn"
                 style="margin-top: 15px"
               >
@@ -325,7 +384,7 @@ const ArchieveItem = async (item: any) => {
                     <div v-if="item.qrImage">
                       <img :src="item.qrImage" alt="QR Code" class="qr-image" />
                       <button
-                        @click="printQRCode"
+                        @click="printSpecificQRCode(item)"
                         class="submit-btn print-btn"
                         style="margin-top: 15px"
                       >
@@ -619,30 +678,48 @@ const ArchieveItem = async (item: any) => {
   background-color: #a1a1aa;
 }
 /* 🖨️ PRINT STYLES */
+
+/* --- 🖨️ THE ULTIMATE PRINT STYLES --- */
 @media print {
-  /* 1. Hide the sidebar, header, form, title, and the print button itself! */
+  /* 1. Nuke all app UI elements and buttons (useless on paper) */
   .sidebar,
   .top-header,
   .dashboard-header,
   .item-form,
   .data-card h2,
-  .print-btn {
+  button {
     display: none !important;
   }
 
-  /* 2. Remove the gray background from the main wrapper */
+  /* 2. Force the background to be pure white to save printer ink */
   .dashboard-wrapper,
   .main-area {
     background-color: white !important;
     height: auto !important;
   }
 
-  /* 3. Remove the border around the card so it looks like a clean label */
+  /* 3. Remove shadows and borders from cards so they look flat */
   .data-card {
     border: none !important;
     box-shadow: none !important;
     margin: 0 !important;
     padding: 0 !important;
+  }
+
+  /* 4. Force the table to stretch across the whole paper */
+  .items-table {
+    width: 100% !important;
+  }
+
+  /* 5. Force all text to be pitch black (bypasses browser ghost-text issues) */
+  * {
+    color: black !important;
+  }
+
+  /* 6. Protect the QR code from being split across two pages */
+  img {
+    max-width: 100% !important;
+    page-break-inside: avoid;
   }
 }
 /* --- TABLE STYLING --- */
