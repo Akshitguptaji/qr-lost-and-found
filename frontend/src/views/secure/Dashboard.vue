@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
 import { auth } from "../../lib/auth.js";
 
@@ -22,6 +22,13 @@ interface ItemCreation {
   qrImage?: string;
 }
 const itemlist = ref<ItemCreation[]>([]); // Placeholder for future data fetching, currently unused
+const showarchieveitem = ref(false); // Controls the visibility of archived items
+const archieveitem = computed(() =>
+  itemlist.value.filter((item) => item.status === "ARCHIVED"),
+);
+const activeitem = computed(() =>
+  itemlist.value.filter((item) => item.status === "ACTIVE"),
+);
 const printSpecificQRCode = (item: any) => {
   const base64 = item.qrImage;
   const printWindow = window.open("", "_blank");
@@ -435,7 +442,8 @@ const updatestatus = async (item: any) => {
               </thead>
 
               <tbody>
-                <tr v-for="item in itemlist" :key="item.id">
+                <!-- Main Table Loop: Only active items -->
+                <tr v-for="item in activeitem" :key="item.id">
                   <td>{{ item.label }}</td>
                   <td>{{ item.category }}</td>
                   <td>{{ item.description }}</td>
@@ -451,19 +459,20 @@ const updatestatus = async (item: any) => {
                     >
                       Get QR Code
                     </button>
+
                     <div v-if="item.qrImage">
                       <img :src="item.qrImage" alt="QR Code" class="qr-image" />
                       <button
                         @click="printSpecificQRCode(item)"
                         class="submit-btn print-btn"
-                        style="margin-top: 15px"
+                        style="margin-top: 15px; margin-right: 10px"
                       >
                         Print QR Code
                       </button>
                     </div>
-                    <!-- Flex container to align the label and toggle -->
-                    <div class="flex items-center gap-3">
-                      <!-- The actual clickable toggle switch -->
+
+                    <!-- Status Toggle Switch -->
+                    <div class="flex items-center gap-3 my-2">
                       <button
                         @click="updatestatus(item)"
                         :class="
@@ -473,7 +482,6 @@ const updatestatus = async (item: any) => {
                         "
                         class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none"
                       >
-                        <!-- The white sliding circle inside the toggle -->
                         <span
                           :class="
                             item.status === 'ACTIVE'
@@ -483,8 +491,6 @@ const updatestatus = async (item: any) => {
                           class="inline-block h-4 w-4 transform rounded-full bg-white transition duration-200 ease-in-out"
                         ></span>
                       </button>
-
-                      <!-- The text label that updates automatically -->
                       <span
                         :class="
                           item.status === 'ACTIVE'
@@ -496,13 +502,13 @@ const updatestatus = async (item: any) => {
                         {{ item.status }}
                       </span>
                     </div>
-                    <!-- </button> -->
+
                     <button
                       @click="ArchieveItem(item)"
                       class="submit-btn"
-                      style="background-color: #3b82f6; margin-right: 10px"
+                      style="background-color: #ef4444; margin-right: 10px"
                     >
-                      Archieved Item
+                      Archive Item
                     </button>
 
                     <button
@@ -517,11 +523,90 @@ const updatestatus = async (item: any) => {
               </tbody>
             </table>
           </div>
+
+          <!-- 🚨 The Toggle Button -->
+          <button
+            @click="showarchieveitem = !showarchieveitem"
+            class="mt-8 mb-4 px-4 py-2 bg-gray-800 text-white rounded font-bold"
+          >
+            {{
+              showarchieveitem ? "Hide Archived Items" : "See Archived Items"
+            }}
+          </button>
+
+          <!-- 🚨 The Archived Table (Hidden by default) -->
+          <div v-if="showarchieveitem" class="data-card table-container">
+            <h2 class="text-xl font-bold mb-4">Archived Items</h2>
+
+            <table class="items-table">
+              <thead>
+                <tr>
+                  <th>Item Name</th>
+                  <th>Category</th>
+                  <th>Description</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Loop through the archived items list -->
+                <!-- Make sure your computed property variable name matches exactly here -->
+                <tr v-for="item in archieveitem" :key="item.id">
+                  <td>{{ item.label }}</td>
+                  <td>{{ item.category }}</td>
+                  <td>{{ item.description }}</td>
+                  <td>
+                    <strong>{{ item.status }}</strong>
+                  </td>
+                  <td>
+                    <!-- Reused edit button so you can still modify archived items if needed -->
+                    <button
+                      @click="edititem(item)"
+                      class="submit-btn"
+                      style="background-color: #3b82f6; margin-right: 10px"
+                    >
+                      Edit Item
+                    </button>
+                    <!-- Status Toggle Switch -->
+                    <div class="flex items-center gap-3 my-2">
+                      <button
+                        @click="updatestatus(item)"
+                        :class="
+                          item.status === 'ACTIVE'
+                            ? 'bg-green-500'
+                            : 'bg-gray-400'
+                        "
+                        class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none"
+                      >
+                        <span
+                          :class="
+                            item.status === 'ACTIVE'
+                              ? 'translate-x-6'
+                              : 'translate-x-1'
+                          "
+                          class="inline-block h-4 w-4 transform rounded-full bg-white transition duration-200 ease-in-out"
+                        ></span>
+                      </button>
+                      <span
+                        :class="
+                          item.status === 'ACTIVE'
+                            ? 'text-green-600'
+                            : 'text-gray-500'
+                        "
+                        class="font-semibold text-sm"
+                      >
+                        {{ item.status }}
+                      </span>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
           <!-- This completely hides the form unless isEditModalOpen is true -->
           <div v-if="isEditModalOpen" class="modal-overlay">
             <div class="modal-content">
               <h2>Edit Item</h2>
-
               <!-- The inputs are wired directly to the clone we made! -->
               <div class="form-group">
                 <label>Item Name</label>
