@@ -7,6 +7,7 @@ import {
   getspecificItem,
   updateItemcontroller,
   getqrcode,
+  updateItemStatusController,
 } from "../controllers/itemcontroller.js";
 
 const itemroutes = Router();
@@ -16,6 +17,7 @@ itemroutes.post("/", requireAuth, handleCreateItem);
 itemroutes.get("/", requireAuth, allUserItem);
 // Get a specific item by ID (GET /api/items/:id)
 itemroutes.get("/:id", requireAuth, getspecificItem);
+itemroutes.patch("/:id/status", requireAuth, updateItemStatusController);
 // Archive a specific item (PATCH /api/items/:id/archive)
 itemroutes.patch("/:id/archive", requireAuth, archiveItemController);
 itemroutes.get("/:shortCode/qrcode", requireAuth, getqrcode);

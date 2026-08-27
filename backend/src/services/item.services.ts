@@ -10,6 +10,26 @@ type createItemInput = {
   userId: string;
 };
 
+export const udpateItemStatus = async (
+  itemId: string,
+  userId: string,
+  status: ItemStatus,
+) => {
+  const updateItemst = await prisma.item.updateMany({
+    data: {
+      status: status,
+    },
+    where: {
+      id: itemId,
+      userId: userId,
+    },
+  });
+  if (updateItemst.count === 0) {
+    throw new Error("NOT_FOUND_OR_UNAUTHORIZED");
+  }
+  return true;
+};
+
 export const createItem = async (data: createItemInput) => {
   return prisma.item.create({
     data: data,
@@ -38,6 +58,7 @@ export const archiveItem = async (itemId: string, userId: string) => {
 export const allUserItems = async (userId: string) => {
   const items = await prisma.item.findMany({
     where: { userId: userId },
+    orderBy: { createdAt: "desc" },
   });
   if (!items) {
     throw new Error("NOT_FOUND");

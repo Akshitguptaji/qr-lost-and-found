@@ -8,10 +8,49 @@ import {
   specificItem,
   updateItem,
   Qrcodegenerate,
+  udpateItemStatus,
 } from "../services/item.services.js";
 // import { success } from "better-auth";
 // import { userAc } from "better-auth/plugins/admin/access";
 // import { ItemStatus } from "@prisma/client";
+export const updateItemStatusController = async (
+  req: Request,
+  res: Response,
+) => {
+  try {
+    const userId = req.userId as string;
+    if (!userId) {
+      res.status(401).json({
+        error: "Unauthorized",
+      });
+      return;
+    }
+    const itemId = req.params.id as string;
+    const { status } = req.body;
+
+    if (!itemId) {
+      res.status(400).json({
+        error: "Item ID is required",
+      });
+      return;
+    }
+    if (!status) {
+      res.status(400).json({
+        error: "Status is required",
+      });
+      return;
+    }
+    await udpateItemStatus(itemId, userId, status);
+
+    return res.json({
+      success: true,
+      message: "item Status Updated successfully",
+    });
+  } catch (error: any) {
+    console.error("Error in updateItemStatusController:", error);
+  }
+};
+
 export const handleCreateItem = async (
   req: Request,
   res: Response,

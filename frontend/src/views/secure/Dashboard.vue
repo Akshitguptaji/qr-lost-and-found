@@ -224,7 +224,14 @@ const ArchieveItem = async (item: any) => {
     console.error("Archieve item error:", error);
   }
 };
-
+const edititemdata = ref({
+  id: "",
+  category: "",
+  label: "",
+  description: "",
+  status: "",
+});
+const isEditModalOpen = ref(false); // Controls the visibility of the edit modal
 const edititem = async (item: any) => {
   const { data, error } = await auth.getSession();
   if (error || !data?.session) {
@@ -232,14 +239,77 @@ const edititem = async (item: any) => {
     return; // Stop the function if they aren't logged in
   }
   try {
-  
+    edititemdata.value = { ...item };
+    isEditModalOpen.value = true;
   } catch (error) {
     console.error("Edit item error:", error);
   }
   // Implement the logic to edit the item here
   console.log("Edit item:", item);
 };
+const updateItem = async () => {
+  const { data, error } = await auth.getSession();
+  if (error || !data?.session) {
+    console.error("No active session found!");
+    return; // Stop the function if they aren't logged in
+  }
+  try {
+    const itemId = edititemdata.value.id;
 
+    const response = await fetch(
+      import.meta.env.VITE_API_URL + `/api/items/${itemId}`,
+      {
+        method: "PUT",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ ...edititemdata.value }),
+      },
+    );
+    if (!response.ok) {
+      throw new Error(`Failed to update item: ${response.statusText}`);
+    }
+    await getitem();
+    const responseData = await response.json();
+    console.log("Update item response:", responseData);
+    isEditModalOpen.value = false; // Close the modal after successful update
+  } catch (error) {
+    console.error("Update item error:", error);
+  }
+};
+
+const updatestatus = async (item: any) => {
+  const { data, error } = await auth.getSession();
+  if (error || !data?.session) {
+    console.error("No active session found!");
+    return; // Stop the function if they aren't logged in
+  }
+  try {
+    const itemId = item.id;
+    const newStatus = item.status === "ACTIVE" ? "LOST" : "ACTIVE"; // Toggle status
+
+    const response = await fetch(
+      import.meta.env.VITE_API_URL + `/api/items/${itemId}/status`,
+      {
+        method: "PATCH",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ status: newStatus }),
+      },
+    );
+    if (!response.ok) {
+      throw new Error(`Failed to update status: ${response.statusText}`);
+    }
+    await getitem(); // Refresh the item list after updating status
+    const responseData = await response.json();
+    console.log("Update status response:", responseData);
+  } catch (error) {
+    console.error("Update status error:", error);
+  }
+};
 // const updatestatus = async () => {};
 </script>
 <template>
@@ -391,12 +461,41 @@ const edititem = async (item: any) => {
                         Print QR Code
                       </button>
                     </div>
-                    <!-- <button
-                      @click="updatestatus(item)"
-                      class="submit-btn"
-                      style="background-color: #3b82f6; margin-right: 10px"
-                    > -->
+                    <!-- Flex container to align the label and toggle -->
+                    <div class="flex items-center gap-3">
+                      <!-- The actual clickable toggle switch -->
+                      <button
+                        @click="updatestatus(item)"
+                        :class="
+                          item.status === 'ACTIVE'
+                            ? 'bg-green-500'
+                            : 'bg-gray-400'
+                        "
+                        class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none"
+                      >
+                        <!-- The white sliding circle inside the toggle -->
+                        <span
+                          :class="
+                            item.status === 'ACTIVE'
+                              ? 'translate-x-6'
+                              : 'translate-x-1'
+                          "
+                          class="inline-block h-4 w-4 transform rounded-full bg-white transition duration-200 ease-in-out"
+                        ></span>
+                      </button>
 
+                      <!-- The text label that updates automatically -->
+                      <span
+                        :class="
+                          item.status === 'ACTIVE'
+                            ? 'text-green-600'
+                            : 'text-gray-500'
+                        "
+                        class="font-semibold text-sm"
+                      >
+                        {{ item.status }}
+                      </span>
+                    </div>
                     <!-- </button> -->
                     <button
                       @click="ArchieveItem(item)"
@@ -406,17 +505,108 @@ const edititem = async (item: any) => {
                       Archieved Item
                     </button>
 
-                    <!-- <button
+                    <button
                       @click="edititem(item)"
                       class="submit-btn"
                       style="background-color: #3b82f6; margin-right: 10px"
                     >
                       Edit Item
-                    </button> -->
+                    </button>
                   </td>
                 </tr>
               </tbody>
             </table>
+          </div>
+          <!-- This completely hides the form unless isEditModalOpen is true -->
+          <div v-if="isEditModalOpen" class="modal-overlay">
+            <div class="modal-content">
+              <h2>Edit Item</h2>
+
+              <!-- The inputs are wired directly to the clone we made! -->
+              <div class="form-group">
+                <label>Item Name</label>
+                <input
+                  v-model="edititemdata.label"
+                  type="text"
+                  class="form-input"
+                />
+              </div>
+
+              <div class="form-group">
+                <label>Category</label>
+                <input
+                  v-model="edititemdata.category"
+                  type="text"
+                  class="form-input"
+                />
+              </div>
+
+              <div class="form-group">
+                <label>Description</label>
+                <textarea v-model="edititemdata.description" class="form-input">
+                </textarea>
+              </div>
+              <div class="form-group">
+                <label
+                  style="display: block; margin-bottom: 8px; font-weight: bold"
+                  >Status</label
+                >
+
+                <!-- Flex container to align the radio options horizontally -->
+                <div style="display: flex; gap: 20px; align-items: center">
+                  <label
+                    style="
+                      display: flex;
+                      align-items: center;
+                      gap: 5px;
+                      cursor: pointer;
+                    "
+                  >
+                    <!-- 🚨 Ensure your v-model matches your exact variable name (editFormData vs edititemdata) -->
+                    <input
+                      v-model="edititemdata.status"
+                      type="radio"
+                      value="ACTIVE"
+                    />
+                    ACTIVE
+                  </label>
+
+                  <label
+                    style="
+                      display: flex;
+                      align-items: center;
+                      gap: 5px;
+                      cursor: pointer;
+                    "
+                  >
+                    <input
+                      v-model="edititemdata.status"
+                      type="radio"
+                      value="LOST"
+                    />
+                    LOST
+                  </label>
+                </div>
+              </div>
+              <div class="button-group">
+                <button
+                  @click="updateItem"
+                  class="submit-btn"
+                  style="background-color: #10b981"
+                >
+                  Update Item
+                </button>
+
+                <!-- Canceling just flips the variable back to false, hiding the form -->
+                <button
+                  @click="isEditModalOpen = false"
+                  class="submit-btn"
+                  style="background-color: #ef4444"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
           </div>
         </main>
       </div>
@@ -760,6 +950,47 @@ const edititem = async (item: any) => {
 /* Remove bottom border from the very last row */
 .items-table tbody tr:last-child td {
   border-bottom: none;
+}
+/* Darkens the background behind the popup */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* The actual white box containing the form */
+.modal-content {
+  background: white;
+  padding: 30px;
+  border-radius: 8px;
+  width: 400px;
+  max-width: 90%;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.button-group {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
 }
 </style>
 //// class ke sath bhi condition lga skte ho , that i scalled dynamic class
