@@ -5,7 +5,7 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     // {
-    //   path: "/",
+    //`   path: "/",
     //   name: "home",
 
     //   //: This is lazy loading
@@ -23,11 +23,11 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
 
-    // {
-    //   path: "/found/:shortCode",
-    //   name: "finder",
-    //   component: () => import("../views/public/FinderPage.vue"),
-    // },
+    {
+      path: "/found/:shortCode",
+      name: "FinderPage",
+      component: () => import("../views/public/FinderPage.vue"),
+    },
     {
       path: "/profile",
       name: "Profile",
