@@ -1,8 +1,12 @@
 import type { Request, Response } from "express";
 import { getIpHash } from "../utils/hash.util.js";
-import { createReportService } from "../services/public.services.js";
+import {
+  createReportService,
+  logScanEvent,
+} from "../services/public.services.js";
 
 // Explicitly type req and res, and return type
+
 export const submitFoundReport = async (
   req: Request,
   res: Response,
@@ -38,9 +42,6 @@ export const submitFoundReport = async (
     return res.status(400).json({ error: "Invalid longitude" });
   }
 
-  // 3. Extract tracking data for the ScanEvent
-  const ipHash = getIpHash(req);
-  const userAgent = (req.headers["user-agent"] as string) || "unknown";
   // 4. Hand off to the Service
   try {
     const report = await createReportService(shortCode, {
@@ -49,8 +50,6 @@ export const submitFoundReport = async (
       accuracyMeters,
       message,
       finderContact,
-      ipHash,
-      userAgent,
     });
 
     return res.status(200).json({ okk: true, data: report });
@@ -61,6 +60,31 @@ export const submitFoundReport = async (
 
     console.error(`Database error for item ${shortCode}:`, err);
     // Fixed your "eraror" typo here
+    return res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+export const handleScanEvent = async (
+  req: Request,
+  res: Response,
+): Promise<any> => {
+  const { shortCode } = req.params;
+
+  if (!shortCode || typeof shortCode !== "string") {
+    return res.status(400).json({ error: "Missing shortCode" });
+  }
+
+  const ipHash = getIpHash(req);
+  const userAgent = (req.headers["user-agent"] as string) || "unknown";
+
+  try {
+    await logScanEvent(shortCode, ipHash, userAgent);
+    return res.status(200).json({ ok: true });
+  } catch (err: any) {
+    if (err.message === "ITEM_NOT_FOUND") {
+      return res.status(404).json({ error: "Invalid QR code" });
+    }
+    console.error(`Scan log failed for ${shortCode}:`, err);
     return res.status(500).json({ error: "Internal server error" });
   }
 };

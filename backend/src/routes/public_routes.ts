@@ -2,7 +2,10 @@ import { Router } from "express";
 import { rateLimiter } from "../middleware/ratelimit.js";
 
 import { verifyTurnstile } from "../middleware/turnstile.js";
-import { submitFoundReport } from "../controllers/public.contoller.js";
+import {
+  submitFoundReport,
+  handleScanEvent,
+} from "../controllers/public.contoller.js";
 
 const publicroutes = Router();
 
@@ -12,5 +15,7 @@ publicroutes.post(
   verifyTurnstile,
   submitFoundReport,
 );
+
+publicroutes.post("/:shortCode/scan", rateLimiter, handleScanEvent);
 
 export default publicroutes;
