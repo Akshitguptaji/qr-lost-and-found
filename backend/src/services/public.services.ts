@@ -13,6 +13,7 @@ interface ReportPayload {
   message?: string;
   finderContact?: string;
   status?: ReportStatus;
+  manualLocation?: string;
 }
 
 export const createReportService = async (
@@ -40,6 +41,7 @@ export const createReportService = async (
         accuracyMeters: data.accuracyMeters ?? null,
         message: data.message ?? null,
         finderContact: data.finderContact ?? null,
+        manualLocation: data.manualLocation ?? null,
       },
     });
 

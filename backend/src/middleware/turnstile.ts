@@ -6,9 +6,9 @@ export const verifyTurnstile = async (
   res: Response,
   next: NextFunction,
 ) => {
-  if (process.env.NODE_ENV === "development") {
-    return next();
-  }
+  // if (process.env.NODE_ENV === "development") {
+  //   return next();
+  // }
   const token = req.body.turnstileToken;
   if (!token) {
     return res.status(400).json({ error: "Missing CAPTCHA token." });
@@ -37,7 +37,11 @@ export const verifyTurnstile = async (
     );
     const data = await response.json();
     if (!data.success) {
-      return res.status(400).json({ error: "Failed CAPTCHA verification." });
+      console.warn("Turnstile verification failed:", data["error-codes"]);
+
+      return res.status(400).json({
+        error: "Failed CAPTCHA verification.",
+      });
     }
 
     next();

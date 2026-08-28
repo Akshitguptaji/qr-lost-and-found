@@ -1,21 +1,147 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client-js"
-  // output   = "../generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
 }
 
-// ============================================================
-// Lost & Found QR/Barcode Tracker — Prisma Schema v1
-//   npx prisma migrate dev --name init
-// ============================================================
+model Item {
+  id          String        @id @default(cuid())
+  userId      String
+  label       String
+  category    String?
+  shortCode   String        @unique @default(cuid())
+  status      ItemStatus    @default(ACTIVE)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  description String?
+  reports     FoundReport[]
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  scanEvents  ScanEvent[]
+
+  @@index([userId, status])
+}
+
+model ScanEvent {
+  id        String       @id @default(cuid())
+  itemId    String
+  ipHash    String?
+  userAgent String?
+  createdAt DateTime     @default(now())
+  report    FoundReport?
+  item      Item         @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@index([itemId, createdAt])
+}
+
+model FoundReport {
+  id             String            @id @default(cuid())
+  itemId         String
+  scanEventId    String?           @unique
+  latitude       Float?
+  longitude      Float?
+  accuracyMeters Float?
+  message        String?
+  finderContact  String?
+  manualLocation String?
+  status         ReportStatus      @default(NEW)
+  createdAt      DateTime          @default(now())
+  item           Item              @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  scanEvent      ScanEvent?        @relation(fields: [scanEventId], references: [id])
+  notifications  NotificationLog[]
+
+  @@index([itemId, status])
+}
+
+model NotificationLog {
+  id         String              @id @default(cuid())
+  reportId   String
+  channel    NotificationChannel
+  status     NotificationStatus  @default(PENDING)
+  attempts   Int                 @default(0)
+  lastError  String?
+  sentAt     DateTime?
+  createdAt  DateTime            @default(now())
+  providerId String?             @unique
+  report     FoundReport         @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  @@index([reportId])
+}
+
+model WebhookConfig {
+  id           String   @id @default(cuid())
+  userId       String
+  url          String
+  secret       String
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  failureCount Int      @default(0)
+
+  @@index([userId])
+}
+
+model User {
+  id            String    @id
+  name          String
+  email         String    @unique
+  emailVerified Boolean   @default(false)
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  items         Item[]
+  accounts      Account[]
+  sessions      Session[]
+
+  @@map("user")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
+}
 
 enum ItemStatus {
   ACTIVE
@@ -35,174 +161,9 @@ enum NotificationChannel {
 }
 
 enum NotificationStatus {
-PENDING
-  PROCESSING
+  PENDING
   SENT
-  DELIVERED
   FAILED
-  }
-
-// ----------------------- Models -----------------------
-
-model Item {
-  id        String     @id @default(cuid())
-  //cuid:-i generates the random-sequential without dashes (35 character long)
-  userId    String // FK(Foreign key) to Better Auth's 
-  // User.id — add the relation once that model exists(we willdo this by  using this command:-
-  // npx auth@latest generate)
-  
-  user User @relation(fields: [userId],references: [id],onDelete: Cascade)
-  
-  label     String // "House Keys", "Backpack", "Water Bottle"
-  category  String? // optional icon/category key for display
-  description String?
-  shortCode String     @unique @default(cuid()) // encoded in the QR URL — random, never sequential
-  status    ItemStatus @default(ACTIVE)
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  // (whenevr this row is updated , prisma update this coloum,with exact current date and time )
-
-
-  scanEvents ScanEvent[]
-  reports    FoundReport[]
-
-  // This is purely for database speed
-  //if the user want the item that has an status of lost , it will quikly find them
-  //sort based on left to right 
-  @@index([userId, status])
+  PROCESSING
+  DELIVERED
 }
-
-model ScanEvent {
-  id        String   @id @default(cuid())
-  itemId    String
-  item      Item     @relation(fields: [itemId], references: [id], onDelete: Cascade)
-  ipHash    String? // sha256(ip + serverSalt) — never store raw IP
-  userAgent String? // A "User Agent" is a string of text that a browser automatically sends to your server to identify the device and software being used
-  createdAt DateTime @default(now())
-
-  report FoundReport?
-
-  @@index([itemId, createdAt])
-}
-
-model FoundReport {
-  id          String     @id @default(cuid())
-  itemId      String
-  item        Item       @relation(fields: [itemId], references: [id], onDelete: Cascade)
-  scanEventId String?    @unique
-  scanEvent   ScanEvent? @relation(fields: [scanEventId], references: [id], onDelete: SetNull)
-
-  latitude       Float? // nullable on purpose — permission may be denied, submission must still work
-  longitude      Float?
-  accuracyMeters Float? // render as a circle on the dashboard map, not a false-precision pin
-
-  message       String?
-  finderContact String? // optional email/phone the finder chooses to leave
-  status        ReportStatus @default(NEW)
-  createdAt     DateTime     @default(now())
-
-  notifications NotificationLog[]
-
-  @@index([itemId, status])
-}
-
-model NotificationLog {
-  id        String              @id @default(cuid())
-  reportId  String
-  report    FoundReport         @relation(fields: [reportId], references: [id], onDelete: Cascade)
-  channel   NotificationChannel
-  status    NotificationStatus  @default(PENDING)
-  attempts  Int                 @default(0)
-  lastError String?
-  sentAt    DateTime?
-  providerId  String?            @unique
-  createdAt DateTime            @default(now())
-
-  @@index([reportId])
-}
-
-model WebhookConfig {
-  id     String @id @default(cuid())
-  userId String  @unique // FK to Better Auth's User.id
-  url    String
-  secret String // HMAC signing secret, generated server-side, shown to the owner once
-  // Generation: When the User creates the webhook, your backend generates a strong, random string (the secret). You save it here in the database and show it to the User exactly once.
-
-  // Signing (HMAC): When a scan happens, your Express backend takes the payload (the JSON data it is about to send) and mixes it mathematically with this secret using an HMAC (Hash-based Message Authentication Code) algorithm. This generates a unique signature.
-  failureCount Int     @default(0)
-  // Verification: Your backend sends the payload and includes the signature in the HTTP headers (e.g., X-Webhook-Signature). The User's receiving server uses their copy of the secret to calculate the signature. If the signatures match, they know the request came strictly from your app and hasn't been tampered with.
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-
-  //Whenever someone scans my item, send an automatic HTTP POST request with the data directly to my personal server/app
-  @@index([userId])
-}
-
-model User {
-  id            String    @id
-  name          String
-  email         String
-  emailVerified Boolean   @default(false)
-  image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
- 
-  
-  sessions      Session[]
-  accounts      Account[]
- items          Item[]
-
-  @@unique([email])
-  @@map("user")
-}
-
-model Session {
-  id        String   @id
-  expiresAt DateTime
-  token     String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  ipAddress String?
-  userAgent String?
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([token]) 
-  @@index([userId])
-  @@map("session")
-}
-
-model Account {
-  id                    String    @id
-  accountId             String
-  providerId            String
-  userId                String
-  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  accessToken           String?
-  refreshToken          String?
-  idToken               String?
-  accessTokenExpiresAt  DateTime?
-  refreshTokenExpiresAt DateTime?
-  scope                 String?
-  password              String?
-  createdAt             DateTime  @default(now())
-  updatedAt             DateTime  @updatedAt
-
-  @@index([userId])
-  @@map("account")
-}
-
-model Verification {
-  id         String   @id
-  identifier String
-  value      String
-  expiresAt  DateTime
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  @@index([identifier])
-  @@map("verification")
-}
-
-
-

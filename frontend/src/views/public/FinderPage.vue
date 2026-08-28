@@ -1,6 +1,8 @@
 <script lang="ts" setup>
 import { ref, onMounted, watch } from "vue";
 import { useRoute } from "vue-router";
+import Turnstile from "vue-turnstile";
+
 const latitude = ref<number | null>(null);
 const longitude = ref<number | null>(null);
 const accuracy = ref<number | null>(null);
@@ -10,17 +12,40 @@ const contactInfo = ref("");
 const honeypot = ref(""); // Hidden field to trap bots
 const turnstileToken = ref("");
 const route = useRoute();
-const shortcode = route.params.shortcode as string;
+const shortcode = route.params.shortCode as string;
 const isSubmitting = ref(false);
 const manualLocation = ref("");
 onMounted(() => {
   const saved = localStorage.getItem("finder_draft");
   if (saved) message.value = saved;
+  scanevent();
 });
 watch(message, (newVal) => {
   localStorage.setItem("finder_draft", newVal);
 });
+const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY;
 //navigator.geolocation.getCurrentPosition(success, error, options)
+const scanevent = async () => {
+  try {
+    const shortcode = route.params.shortCode as string;
+    console.log("shortcode", shortcode);
+    const response = await fetch(
+      import.meta.env.VITE_API_URL + `/api/submitreport/${shortcode}/scan`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      },
+    );
+    if (!response.ok) {
+      console.error("Failed to log scan event");
+    }
+  } catch (error) {
+    console.error("Error logging scan event:", error);
+  }
+};
+
 const requestLocation = () => {
   if (!("geolocation" in navigator)) {
     locationStatus.value = "Geolocation is not supported by your browser.";
@@ -52,22 +77,31 @@ const requestLocation = () => {
 const submitReport = async (attempt = 1) => {
   isSubmitting.value = true;
   try {
-    const response = await fetch(`/api/found/${shortcode}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
+    const response = await fetch(
+      import.meta.env.VITE_API_URL +
+        `/api/submitreport/${shortcode}/submitreport`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message: message.value,
+          finderContact: contactInfo.value,
+          honeypot: honeypot.value,
+          turnstileToken: turnstileToken.value,
+          latitude: latitude.value,
+          longitude: longitude.value,
+          accuracyMeters: accuracy.value,
+          manualLocation: manualLocation.value,
+        }),
       },
-      body: JSON.stringify({
-        message: message.value,
-        contactInfo: contactInfo.value,
-        honeypot: honeypot.value,
-        turnstileToken: turnstileToken.value,
-        latitude: latitude.value,
-        longitude: longitude.value,
-        accuracy: accuracy.value,
-        manualLocation: manualLocation.value,
-      }),
-    });
+    );
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.error || "Failed to send report");
+    }
+    console.log("Report submitted successfully:", data);
     localStorage.removeItem("finder_draft");
     locationStatus.value = "Report sent successfully!";
     isSubmitting.value = false;
@@ -79,6 +113,7 @@ const submitReport = async (attempt = 1) => {
       locationStatus.value = "Network failed. Please try again later.";
       isSubmitting.value = false;
     }
+  }
 };
 </script>
 <template>
@@ -150,7 +185,9 @@ const submitReport = async (attempt = 1) => {
           placeholder="So the owner can reach you"
         />
       </div>
-
+      <div class="mb-4">
+        <Turnstile v-model="turnstileToken" :site-key="TURNSTILE_SITE_KEY" />
+      </div>
       <button
         type="submit"
         :disabled="isSubmitting"

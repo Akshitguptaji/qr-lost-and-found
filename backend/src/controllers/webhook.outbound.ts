@@ -17,21 +17,21 @@ export const setupUserWebhook = async (req: Request, res: Response) => {
     const encryptedSecret = encryptSecret(secret);
 
     // 2. Save or update it in the database
-    const webhook = await prisma.webhookConfig.upsert({
-      where: { userId: userId }, // Assuming one webhook per user
-      update: {
-        url,
-        secret: encryptedSecret,
-        isActive: true,
-        failureCount: 0,
-      },
-      create: {
-        userId,
-        url,
-        secret: encryptedSecret,
-        isActive: true,
-      },
-    });
+    // const webhook = await prisma.webhookConfig.upsert({
+    //   where: { userId: userId }, // Assuming one webhook per user
+    //   update: {
+    //     url,
+    //     secret: encryptedSecret,
+    //     isActive: true,
+    //     failureCount: 0,
+    //   },
+    //   create: {
+    //     userId,
+    //     url,
+    //     secret: encryptedSecret,
+    //     isActive: true,
+    //   },
+    // });
 
     res.status(200).json({ message: "Webhook saved successfully!" });
   } catch (error) {
