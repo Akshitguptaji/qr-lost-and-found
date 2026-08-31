@@ -5,6 +5,7 @@ agr hum sara code controllers mailikh denge toh usse fat controller bolte hai , 
 2.hard ot debug
 3.messy code
 "
+and
 Service(kitchen): Does the database work.
 rule:it does not care that which waiter or cutomer gives the order it just prepare
 
