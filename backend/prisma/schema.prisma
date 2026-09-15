@@ -44,9 +44,9 @@ model FoundReport {
   accuracyMeters Float?
   message        String?
   finderContact  String?
-  manualLocation String?
   status         ReportStatus      @default(NEW)
   createdAt      DateTime          @default(now())
+  manualLocation String?
   item           Item              @relation(fields: [itemId], references: [id], onDelete: Cascade)
   scanEvent      ScanEvent?        @relation(fields: [scanEventId], references: [id])
   notifications  NotificationLog[]
