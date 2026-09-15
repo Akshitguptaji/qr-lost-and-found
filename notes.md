@@ -5,6 +5,7 @@ agr hum sara code controllers mailikh denge toh usse fat controller bolte hai , 
 2.hard ot debug
 3.messy code
 "
+and
 Service(kitchen): Does the database work.
 rule:it does not care that which waiter or cutomer gives the order it just prepare
 
@@ -36,3 +37,17 @@ toggle btn:-
 ( and make it off using false)
 2:- use a btn to fire an event ( click event ) to flip th evalue ( form false to true)
 3:-than use this valuse in v-if ( in your html) 
+just going on trek that's why 
+not working on p to ject
+same ressein
+fi al back to work
+back to that
+going for some personalreading do one work. be.
+passport
+sook back to brooo
+shit broooo
+shirt ttttt
+visit to hospital. 
+back to uni. 
+back to work
+shit
