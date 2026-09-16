@@ -109,6 +109,7 @@ const getitem = async () => {
     },
   });
   const item = await response.json();
+  console.log("fetched items:", item);
   // console.log("fetched items:", item);
   // console.log("fetched items:", item.message);
   itemlist.value = item.message; // Store the fetched items in the itemlist ref

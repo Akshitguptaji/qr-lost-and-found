@@ -4,7 +4,7 @@ import { createRouter, createWebHistory } from "vue-router";
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
-  // i have to create the routes for report 
+    // i have to create the routes for report
     // {
     //`   path: "/",
     //   name: "home",
@@ -25,11 +25,12 @@ const router = createRouter({
     },
 
     {
-      path: "/dashboard/reports",
+      path: "/dashboard/reports/:id",
       name: "Reports",
       component: () => import("../views/secure/Reports.vue"),
       meta: { requiresAuth: true },
     },
+
     {
       path: "/found/:shortCode",
       name: "FinderPage",

@@ -58,6 +58,9 @@ export const archiveItem = async (itemId: string, userId: string) => {
 export const allUserItems = async (userId: string) => {
   const items = await prisma.item.findMany({
     where: { userId: userId },
+    include: {
+      reports: true,
+    },
     orderBy: { createdAt: "desc" },
   });
   if (!items) {
