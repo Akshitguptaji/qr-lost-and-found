@@ -20,6 +20,7 @@ interface ItemCreation {
   status: string;
   shortCode: string;
   qrImage?: string;
+  reports?: any[]; // Optional property to hold reports
 }
 const itemlist = ref<ItemCreation[]>([]); // Placeholder for future data fetching, currently unused
 const showarchieveitem = ref(false); // Controls the visibility of archived items
@@ -112,7 +113,9 @@ const getitem = async () => {
   console.log("fetched items:", item);
   // console.log("fetched items:", item);
   // console.log("fetched items:", item.message);
-  itemlist.value = item.message; // Store the fetched items in the itemlist ref
+  itemlist.value = item.message;
+  // console.log("fetched items:", itemlist.value.reports);
+  // Store the fetched items in the itemlist ref
   // console.log("fetched items:", itemlist.value);
   // console.log("fetched items:", itemlist.value[0]);
 };
@@ -167,6 +170,10 @@ const createItem = async () => {
     iscreateitem.value = false; // Reset the item creation state
     // qrcode.value = "";
   }
+};
+const viewreport = async (id: any) => {
+  console.log("view report item:", id);
+  router.push(`/dashboard/reports/${id}`);
 };
 const getqrcode = async (item: any) => {
   getscode.value = true;
@@ -519,6 +526,24 @@ const updatestatus = async (item: any) => {
                     >
                       Edit Item
                     </button>
+                    <div v-if="item.reports && item.reports.length > 0">
+                      <div
+                        v-for="(report, index) in item.reports"
+                        :key="report.id"
+                        class="flex items-center gap-3 my-2"
+                      >
+                        <button
+                          @click="viewreport(report.id)"
+                          class="submit-btn"
+                          style="background-color: #3b82f6; margin-right: 10px"
+                        >
+                          View Report {{ index + 1 }}
+                        </button>
+                      </div>
+                    </div>
+                    <span v-else class="text-gray-500 text-sm">
+                      No Reports
+                    </span>
                   </td>
                 </tr>
               </tbody>
