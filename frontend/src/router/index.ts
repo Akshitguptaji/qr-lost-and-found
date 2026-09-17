@@ -5,13 +5,13 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     // i have to create the routes for report
-    // {
-    //`   path: "/",
-    //   name: "home",
-
-    //   //: This is lazy loading
-    //   component: () => import("../views/public/LandingPage.vue"),
-    // },
+    //
+    {
+      path: "/",
+      name: "LandingPage",
+      //: This is lazy loading
+      component: () => import("../views/public/LandingPage.vue"),
+    },
     {
       path: "/login",
       name: "login",
