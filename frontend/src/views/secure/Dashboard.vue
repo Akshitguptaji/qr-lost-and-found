@@ -98,7 +98,7 @@ onMounted(async () => {
 const getitem = async () => {
   const { data } = await auth.getSession();
   if (!data?.session) {
-    console.log("can not get the item");
+    // console.log("can not get the item");
     return;
   }
   const userId = data.session.userId;
@@ -110,7 +110,7 @@ const getitem = async () => {
     },
   });
   const item = await response.json();
-  console.log("fetched items:", item);
+  // console.log("fetched items:", item);
   // console.log("fetched items:", item);
   // console.log("fetched items:", item.message);
   itemlist.value = item.message;
@@ -136,7 +136,7 @@ const createItem = async () => {
       console.error("No active session found!");
       return; // Stop the function if they aren't logged in
     }
-    console.log(data.session);
+    // console.log(data.session);
     // const token = data.session.token;
     const userid = data.session.userId;
     const payload = {
@@ -155,8 +155,8 @@ const createItem = async () => {
     await getitem(); // Refresh the item list after creating a new item
     const responseData = await response.json();
     qrcode.value = responseData.qrcode;
-    console.log("successfully created item");
-    console.log(qrcode.value);
+    // console.log("successfully created item");
+    // console.log(qrcode.value);
     // console.log("successfully created item:", await response.json());
   } catch (error) {
     console.error("create item error:", error);
@@ -172,7 +172,7 @@ const createItem = async () => {
   }
 };
 const viewreport = async (id: any) => {
-  console.log("view report item:", id);
+  // console.log("view report item:", id);
   router.push(`/dashboard/reports/${id}`);
 };
 const getqrcode = async (item: any) => {
@@ -185,7 +185,7 @@ const getqrcode = async (item: any) => {
 
   try {
     const shortCode = item.shortCode;
-    console.log("shortCode:", shortCode);
+    // console.log("shortCode:", shortCode);
     // const shortCode =await fetch(); // Assuming you want to use the userId as the shortCode
     const reponse = await fetch(
       import.meta.env.VITE_API_URL + `/api/items/${shortCode}/qrcode`,
@@ -234,7 +234,7 @@ const ArchieveItem = async (item: any) => {
     }
     await getitem();
     const responseData = await response.json();
-    console.log("Archieve item response:", responseData);
+    // console.log("Archieve item response:", responseData);
   } catch (error) {
     console.error("Archieve item error:", error);
   }
@@ -260,7 +260,7 @@ const edititem = async (item: any) => {
     console.error("Edit item error:", error);
   }
   // Implement the logic to edit the item here
-  console.log("Edit item:", item);
+  // console.log("Edit item:", item);
 };
 const updateItem = async () => {
   const { data, error } = await auth.getSession();
@@ -287,7 +287,7 @@ const updateItem = async () => {
     }
     await getitem();
     const responseData = await response.json();
-    console.log("Update item response:", responseData);
+    // console.log("Update item response:", responseData);
     isEditModalOpen.value = false; // Close the modal after successful update
   } catch (error) {
     console.error("Update item error:", error);
@@ -320,7 +320,7 @@ const updatestatus = async (item: any) => {
     }
     await getitem(); // Refresh the item list after updating status
     const responseData = await response.json();
-    console.log("Update status response:", responseData);
+    // console.log("Update status response:", responseData);
   } catch (error) {
     console.error("Update status error:", error);
   }

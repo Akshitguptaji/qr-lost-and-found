@@ -40,13 +40,13 @@ const getreport = async () => {
         },
       },
     );
-    console.log("response", response);
+    // console.log("response", response);
     if (!response.ok) {
       throw new Error("Failed to fetch report data");
     }
 
     const data = await response.json();
-    console.log("report data", data);
+    // console.log("report data", data);
     reportData.value = data;
   } catch (err: any) {
     console.error("Error fetching report data:", err);

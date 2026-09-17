@@ -29,7 +29,7 @@ const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY;
 const scanevent = async () => {
   try {
     // const shortcode = route.params.shortCode as string;
-    console.log("shortcode", shortcode);
+    // console.log("shortcode", shortcode);
     const response = await fetch(
       import.meta.env.VITE_API_URL + `/api/submitreport/${shortcode}/scan`,
       {
@@ -107,8 +107,8 @@ const submitReport = async (attempt = 1) => {
     if (!response.ok) {
       throw new Error(data.error || "Failed to send report");
     }
-    console.log("Report submitted successfully:", data);
-    console.log(latitude.value, longitude.value, accuracy.value);
+    // console.log("Report submitted successfully:", data);
+    // console.log(latitude.value, longitude.value, accuracy.value);
     localStorage.removeItem("finder_draft");
     locationStatus.value = "Report sent successfully!";
     isSubmitting.value = false;

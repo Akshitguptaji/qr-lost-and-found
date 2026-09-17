@@ -2,10 +2,12 @@
   "compilerOptions": {
     "module": "esnext",
     "target": "esnext",
-    "baseUrl": "./",
+    // "baseUrl": "./",
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+    "noUnusedLocals": false,
+    "noUnusedParameters": false
   },
   "files": [],
   "references": [

@@ -26,7 +26,7 @@ export const sendOwnerNotification = async (params: NotificationParams) => {
     // FIX 2: Hardcode the onboarding email for testing so Resend doesn't block you
     const { data, error } = await resend.emails.send({
       from: "onboarding@resend.dev", // Hardcoded for testing
-      to: "mailtoakshitji123@gmail.com", // Hardcoded for testing
+      to: `${params.email}`, // Hardcoded for testing
       subject: `Someone found your ${params.itemName}!`,
       html: `
           <h2>Good news! Your ${params.itemName} has been found.</h2>

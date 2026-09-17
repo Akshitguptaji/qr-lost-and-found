@@ -56,7 +56,7 @@ export const handleCreateItem = async (
   res: Response,
 ): Promise<void> => {
   try {
-    console.log("req.userId is:", req.userId);
+    // console.log("req.userId is:", req.userId);
     // console.log("req.user is:", req.user);
     const userId = req.userId;
     if (!userId) {
