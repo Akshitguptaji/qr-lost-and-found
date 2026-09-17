@@ -10,7 +10,7 @@ const isloading = ref(true);
 const qrcode = ref("");
 const showForm = ref(false); // Controls the visibility of the form
 const iscreateitem = ref(false);
-const getqr = ref("");
+// const getqr = ref("");
 const getscode = ref(false);
 interface ItemCreation {
   id: number;
@@ -101,7 +101,7 @@ const getitem = async () => {
     // console.log("can not get the item");
     return;
   }
-  const userId = data.session.userId;
+  // const userId = data.session.userId;
   const response = await fetch(import.meta.env.VITE_API_URL + "/api/items/", {
     method: "GET",
     credentials: "include",

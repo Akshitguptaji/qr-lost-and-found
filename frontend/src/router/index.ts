@@ -44,7 +44,7 @@ const router = createRouter({
     },
   ],
 });
-router.beforeEach(async (to, from, next) => {
+router.beforeEach(async (to, _from, next) => {
   if (!to.meta.requiresAuth) return next();
   const { data } = await auth.getSession();
   if (!data?.session) {
