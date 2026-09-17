@@ -233,7 +233,7 @@ const ArchieveItem = async (item: any) => {
       throw new Error(`Failed to archive item: ${response.statusText}`);
     }
     await getitem();
-    const responseData = await response.json();
+    // const responseData = await response.json();
     // console.log("Archieve item response:", responseData);
   } catch (error) {
     console.error("Archieve item error:", error);
@@ -286,7 +286,7 @@ const updateItem = async () => {
       throw new Error(`Failed to update item: ${response.statusText}`);
     }
     await getitem();
-    const responseData = await response.json();
+    // const responseData = await response.json();
     // console.log("Update item response:", responseData);
     isEditModalOpen.value = false; // Close the modal after successful update
   } catch (error) {
@@ -319,7 +319,7 @@ const updatestatus = async (item: any) => {
       throw new Error(`Failed to update status: ${response.statusText}`);
     }
     await getitem(); // Refresh the item list after updating status
-    const responseData = await response.json();
+    // const responseData = await response.json();
     // console.log("Update status response:", responseData);
   } catch (error) {
     console.error("Update status error:", error);
