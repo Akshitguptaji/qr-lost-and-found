@@ -15,6 +15,7 @@ const route = useRoute();
 const shortcode = route.params.shortCode as string;
 const isSubmitting = ref(false);
 const manualLocation = ref("");
+const isLocating = ref(true);
 onMounted(() => {
   const saved = localStorage.getItem("finder_draft");
   if (saved) message.value = saved;
@@ -27,7 +28,7 @@ const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY;
 //navigator.geolocation.getCurrentPosition(success, error, options)
 const scanevent = async () => {
   try {
-    const shortcode = route.params.shortCode as string;
+    // const shortcode = route.params.shortCode as string;
     console.log("shortcode", shortcode);
     const response = await fetch(
       import.meta.env.VITE_API_URL + `/api/submitreport/${shortcode}/scan`,
@@ -49,8 +50,10 @@ const scanevent = async () => {
 const requestLocation = () => {
   if (!("geolocation" in navigator)) {
     locationStatus.value = "Geolocation is not supported by your browser.";
+    isLocating.value = false;
     return;
   }
+  isLocating.value = true;
   navigator.geolocation.getCurrentPosition(
     (position) => {
       latitude.value = position.coords.latitude;
@@ -58,6 +61,7 @@ const requestLocation = () => {
       accuracy.value = position.coords.accuracy;
       locationStatus.value = "Location obtained successfully!";
       console.log(position);
+      isLocating.value = false;
     },
     (err) => {
       if (err.code === 1) {
@@ -69,6 +73,8 @@ const requestLocation = () => {
         locationStatus.value =
           "Could not get a precise location, but you can still send your message.";
       }
+
+      isLocating.value = false;
     },
     { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 },
   );
@@ -102,6 +108,7 @@ const submitReport = async (attempt = 1) => {
       throw new Error(data.error || "Failed to send report");
     }
     console.log("Report submitted successfully:", data);
+    console.log(latitude.value, longitude.value, accuracy.value);
     localStorage.removeItem("finder_draft");
     locationStatus.value = "Report sent successfully!";
     isSubmitting.value = false;
@@ -151,7 +158,11 @@ const submitReport = async (attempt = 1) => {
         placeholder="e.g., Under the park bench"
       />
     </div>
-    <form @submit.prevent="submitReport()">
+    <form
+      @submit.prevent="submitReport()"
+      :disabled="isLocating || isSubmitting"
+      class="p-4 max-w-md mx-auto"
+    >
       <!-- Honeypot field (hidden from real users) -->
       <input
         v-model="honeypot"
@@ -168,6 +179,19 @@ const submitReport = async (attempt = 1) => {
         <textarea
           v-model="message"
           placeholder="I found your item..."
+          class="border p-2 w-full rounded"
+          rows="4"
+          required
+        ></textarea>
+      </div>
+
+      <div class="mb-4">
+        <label class="block text-sm font-bold mb-2"
+          >Location <span class="text-red-500">*</span></label
+        >
+        <textarea
+          v-model="manualLocation"
+          placeholder="Type where you left it (optional)"
           class="border p-2 w-full rounded"
           rows="4"
           required
@@ -195,6 +219,7 @@ const submitReport = async (attempt = 1) => {
       >
         {{ isSubmitting ? "Sending..." : "Send Message" }}
       </button>
+      <p class="mt-4 text-sm text-gray-600">{{ locationStatus }}</p>
     </form>
   </main>
 </template>

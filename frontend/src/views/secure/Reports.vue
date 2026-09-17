@@ -54,7 +54,6 @@ const getreport = async () => {
   }
 };
 </script>
-
 <template>
   <div class="max-w-3xl mx-auto p-6 mt-10">
     <button
@@ -66,6 +65,79 @@ const getreport = async () => {
 
     <div v-if="error" class="bg-red-100 text-red-700 p-4 rounded">
       {{ error }}
+    </div>
+
+    <div v-else-if="!reportData" class="text-gray-500">
+      Loading report details...
+    </div>
+
+    <div v-else class="bg-white p-6 rounded shadow-lg border">
+      <!-- Item Details -->
+      <h1 class="text-2xl font-bold mb-2">
+        Found Item: {{ reportData.Report.item.label }}
+      </h1>
+      <p class="text-gray-600 mb-6">
+        Category: {{ reportData.Report.item.category }}
+      </p>
+      <p class="text-gray-600 mb-6">
+        Description: {{ reportData.Report.item.description }}
+      </p>
+      <hr class="mb-6" />
+
+      <!-- Finder's Message -->
+      <div class="mb-6">
+        <h2 class="text-sm text-gray-500 font-bold uppercase mb-1">
+          Finder's Message
+        </h2>
+        <p class="text-lg bg-gray-50 p-4 rounded border">
+          {{ reportData.Report.message || "No message provided" }}
+        </p>
+      </div>
+      <!-- Finder's Message -->
+      <div class="mb-6">
+        <h2 class="text-sm text-gray-500 font-bold uppercase mb-1">
+          Finder's Contact
+        </h2>
+        <p class="text-lg bg-gray-50 p-4 rounded border">
+          {{ reportData.Report.finderContact || "No Contact provided" }}
+        </p>
+      </div>
+      <div class="mb-6">
+        <h2 class="text-sm text-gray-500 font-bold uppercase mb-1">
+          Manual Location
+        </h2>
+        <p class="text-lg bg-gray-50 p-4 rounded border">
+          {{ reportData.Report.manualLocation || "No location provided" }}
+        </p>
+      </div>
+
+      <!-- Map & Location -->
+      <div class="mb-4">
+        <h2 class="text-sm text-gray-500 font-bold uppercase mb-2">
+          Location Found
+        </h2>
+
+        <div v-if="reportData.Report.latitude && reportData.Report.longitude">
+          <!-- The Free Google Maps Iframe -->
+          <iframe
+            width="100%"
+            height="300"
+            class="rounded border shadow-sm"
+            style="border: 0"
+            loading="lazy"
+            allowfullscreen
+            :src="`https://maps.google.com/maps?q=${reportData.Report.latitude},${reportData.Report.longitude}&z=15&output=embed`"
+          >
+          </iframe>
+          <p class="text-sm text-gray-500 mt-2">
+            Exact Coordinates: {{ reportData.Report.latitude }},
+            {{ reportData.Report.longitude }}
+          </p>
+        </div>
+        <div v-else class="bg-gray-100 p-4 rounded text-gray-500">
+          No GPS location was shared by the finder.
+        </div>
+      </div>
     </div>
   </div>
 </template>
