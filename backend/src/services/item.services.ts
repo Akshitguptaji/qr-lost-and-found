@@ -124,7 +124,7 @@ export const Qrcodegenerate = async (shortCode: string, userId: string) => {
   }
   //qr code is  a literally just a text string (a URL) physically printed as black and white squares.
   const baseurl = process.env.FRONTEND_URL || "http://localhost:5173";
-  const trackingurl = `${baseurl}/api/report/${shortCode}`;
+  const trackingurl = `${baseurl}/found/${shortCode}`;
   const qrDataurl = await QRcode.toDataURL(trackingurl, {
     // bts:-translate url to binary than maps those 0and 1 to a 2d grid , and than instead of saving it in apng it converts the file into base 64 text string
     errorCorrectionLevel: "H",
