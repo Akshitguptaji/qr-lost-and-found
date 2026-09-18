@@ -209,7 +209,7 @@ const submitReport = async (attempt = 1) => {
           required
         ></textarea>
       </div>
-
+      <!-- 
       <div class="mb-4">
         <label class="block text-sm font-bold mb-2"
           >Location <span class="text-red-500">*</span></label
@@ -221,7 +221,7 @@ const submitReport = async (attempt = 1) => {
           rows="4"
           required
         ></textarea>
-      </div>
+      </div> -->
 
       <div class="mb-4">
         <label class="block text-sm font-bold mb-2"
