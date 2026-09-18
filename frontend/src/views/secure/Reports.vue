@@ -41,7 +41,7 @@ const getreport = async () => {
     //     },
     //   },
     // );
-    const response = await apiFetch(`/reports/${reportId}`);
+    const response = await apiFetch(`/api/reports/${reportId}`);
     // console.log("response", response);
     if (!response.ok) {
       // Local component error handling conceptual feedback

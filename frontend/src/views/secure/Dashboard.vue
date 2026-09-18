@@ -109,7 +109,7 @@ const getitem = async () => {
   //     "Content-Type": "application/json",
   //   },
   // });
-  const response = await apiFetch("/items");
+  const response = await apiFetch("/api/items");
   if (!response.ok) {
     // Component-level error handling
     console.error(
@@ -162,7 +162,7 @@ const createItem = async () => {
     //   },
     //   body: JSON.stringify(payload),
     // });
-    const response = await apiFetch("/items", {
+    const response = await apiFetch("/api/items", {
       method: "POST",
       body: JSON.stringify(payload),
     });
@@ -219,7 +219,7 @@ const getqrcode = async (item: any) => {
     //     },
     //   },
     // );
-    const reponse = await apiFetch(`/items/${shortCode}/qrcode`);
+    const reponse = await apiFetch(`/api/items/${shortCode}/qrcode`);
     if (!reponse.ok) {
       console.error(
         `Backend get qrcode error: ${reponse.status} ${reponse.statusText}`,
@@ -259,7 +259,7 @@ const ArchieveItem = async (item: any) => {
     //     body: JSON.stringify({ userId }),
     //   },
     // );
-    const response = await apiFetch(`/items/${itemId}/archive`, {
+    const response = await apiFetch(`/api/items/${itemId}/archive`, {
       method: "PATCH",
       // body: JSON.stringify({ userId }), // **DELETED**: Redundant and insecure decentralized design.
     });
@@ -316,7 +316,7 @@ const updateItem = async () => {
     //     body: JSON.stringify({ ...edititemdata.value }),
     //   },
     // );
-    const response = await apiFetch(`/items/${itemId}`, {
+    const response = await apiFetch(`/api/items/${itemId}`, {
       method: "PUT",
       body: JSON.stringify({ ...edititemdata.value }), // Item bulk update data
     });
@@ -353,7 +353,7 @@ const updatestatus = async (item: any) => {
     //     body: JSON.stringify({ status: newStatus }),
     //   },
     // );
-    const response = await apiFetch(`/items/${itemId}/status`, {
+    const response = await apiFetch(`/api/items/${itemId}/status`, {
       method: "PATCH",
       body: JSON.stringify({ status: newStatus }), // Status data
     });

@@ -44,7 +44,7 @@ const scanevent = async () => {
     //     },
     //   },
     // );
-    const response = await apiFetch(`/submitreport/${shortcode}/scan`, {
+    const response = await apiFetch(`/api/submitreport/${shortcode}/scan`, {
       method: "POST",
     });
     if (!response.ok) {
@@ -111,19 +111,22 @@ const submitReport = async (attempt = 1) => {
     //     }),
     //   },
     // );
-    const response = await apiFetch(`/submitreport/${shortcode}/submitreport`, {
-      method: "POST",
-      body: JSON.stringify({
-        message: message.value,
-        finderContact: contactInfo.value,
-        honeypot: honeypot.value,
-        turnstileToken: turnstileToken.value,
-        latitude: latitude.value,
-        longitude: longitude.value,
-        accuracyMeters: accuracy.value,
-        manualLocation: manualLocation.value,
-      }),
-    });
+    const response = await apiFetch(
+      `/api/submitreport/${shortcode}/submitreport`,
+      {
+        method: "POST",
+        body: JSON.stringify({
+          message: message.value,
+          finderContact: contactInfo.value,
+          honeypot: honeypot.value,
+          turnstileToken: turnstileToken.value,
+          latitude: latitude.value,
+          longitude: longitude.value,
+          accuracyMeters: accuracy.value,
+          manualLocation: manualLocation.value,
+        }),
+      },
+    );
     const data = await response.json();
     if (!response.ok) {
       throw new Error(data.error || "Failed to send report");
