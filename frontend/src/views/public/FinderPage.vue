@@ -87,8 +87,24 @@ const requestLocation = () => {
     { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 },
   );
 };
+const handleTurnstileError = (error: unknown) => {
+  console.error("Turnstile error:", error);
+  turnstileToken.value = "";
+};
 
+const handleTurnstileExpired = () => {
+  console.warn("Turnstile token expired");
+  turnstileToken.value = "";
+};
+
+watch(turnstileToken, (token) => {
+  console.log("Turnstile token changed:", token ? "TOKEN RECEIVED" : "EMPTY");
+});
 const submitReport = async (attempt = 1) => {
+  if (!turnstileToken.value) {
+    locationStatus.value = "Please complete the security check first.";
+    return;
+  }
   isSubmitting.value = true;
   try {
     // const response = await fetch(
@@ -209,7 +225,7 @@ const submitReport = async (attempt = 1) => {
           required
         ></textarea>
       </div>
-      <!-- 
+
       <div class="mb-4">
         <label class="block text-sm font-bold mb-2"
           >Location <span class="text-red-500">*</span></label
@@ -221,7 +237,7 @@ const submitReport = async (attempt = 1) => {
           rows="4"
           required
         ></textarea>
-      </div> -->
+      </div>
 
       <div class="mb-4">
         <label class="block text-sm font-bold mb-2"
@@ -235,7 +251,12 @@ const submitReport = async (attempt = 1) => {
         />
       </div>
       <div class="mb-4">
-        <Turnstile v-model="turnstileToken" :site-key="TURNSTILE_SITE_KEY" />
+        <Turnstile
+          v-model="turnstileToken"
+          :site-key="TURNSTILE_SITE_KEY"
+          @error="handleTurnstileError"
+          @expired="handleTurnstileExpired"
+        />
       </div>
       <button
         type="submit"
@@ -243,7 +264,7 @@ const submitReport = async (attempt = 1) => {
         class="w-full bg-green-600 text-white font-bold py-3 px-4 rounded mt-2"
       >
         {{ isSubmitting ? "Sending..." : "Send Message" }}
-      </button> 
+      </button>
       <p class="mt-4 text-sm text-gray-600">{{ locationStatus }}</p>
     </form>
   </main>
