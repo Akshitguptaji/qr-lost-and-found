@@ -24,6 +24,9 @@ export const sendOwnerNotification = async (params: NotificationParams) => {
 
     // FIX 1: Destructure { data, error } exactly like this. Do not use 'const info ='
     // FIX 2: Hardcode the onboarding email for testing so Resend doesn't block you
+    console.log("=== EMAIL START ===");
+    console.log("Recipient:", params.email);
+    console.log("Item:", params.itemName);
     const { data, error } = await resend.emails.send({
       from: "QR Lost & Found <noreply@pawansweets.com>", // Hardcoded for testing
       to: `${params.email}`, // Hardcoded for testing
@@ -36,6 +39,9 @@ export const sendOwnerNotification = async (params: NotificationParams) => {
         `,
     });
 
+    console.log("RESEND DATA:", data);
+    console.log("RESEND ERROR:", error);
+    console.log("=== EMAIL END ===");
     // Now 'error' exists and can be checked
     if (error) {
       console.error(`Resend API failed for log ${params.logId}:`, error);
