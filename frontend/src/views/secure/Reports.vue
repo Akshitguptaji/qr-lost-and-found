@@ -2,6 +2,7 @@
 import { ref, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { auth } from "../../lib/auth.js";
+import { apiFetch } from "../../lib/api.js";
 const route = useRoute();
 const router = useRouter();
 const isLoading = ref(true);
@@ -30,27 +31,34 @@ onMounted(async () => {
 
 const getreport = async () => {
   try {
-    const response = await fetch(
-      import.meta.env.VITE_API_URL + `/api/reports/${reportId}`,
-      {
-        credentials: "include",
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      },
-    );
+    // const response = await fetch(
+    //   import.meta.env.VITE_API_URL + `/api/reports/${reportId}`,
+    //   {
+    //     credentials: "include",
+    //     method: "GET",
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //     },
+    //   },
+    // );
+    const response = await apiFetch(`/reports/${reportId}`);
     // console.log("response", response);
     if (!response.ok) {
-      throw new Error("Failed to fetch report data");
+      // Local component error handling conceptual feedback
+      console.error(
+        `Backend API error retrieving report details: ${response.status}`,
+      );
+      error.value = "Failed to load report data."; // Component localized UI error feedback conceptual
+      reportData.value = null; // Prevention UI crash safe fallback assignment
+      return;
     }
-
     const data = await response.json();
     // console.log("report data", data);
-    reportData.value = data;
+    reportData.value = data || null;
   } catch (err: any) {
     console.error("Error fetching report data:", err);
     error.value = err.message;
+    reportData.value = null; // Prevention UI crash safe fallback assignment
   }
 };
 </script>

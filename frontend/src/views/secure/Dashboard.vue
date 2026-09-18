@@ -2,7 +2,7 @@
 import { ref, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
 import { auth } from "../../lib/auth.js";
-
+import { apiFetch } from "../../lib/api.js";
 const router = useRouter();
 const name = ref("");
 const email = ref("");
@@ -102,13 +102,22 @@ const getitem = async () => {
     return;
   }
   // const userId = data.session.userId;
-  const response = await fetch(import.meta.env.VITE_API_URL + "/api/items/", {
-    method: "GET",
-    credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+  // const response = await fetch(import.meta.env.VITE_API_URL + "/api/items/", {
+  //   method: "GET",
+  //   credentials: "include",
+  //   headers: {
+  //     "Content-Type": "application/json",
+  //   },
+  // });
+  const response = await apiFetch("/items");
+  if (!response.ok) {
+    // Component-level error handling
+    console.error(
+      `Backend API error: ${response.status} ${response.statusText}`,
+    );
+    itemlist.value = []; // Safe fallback on API failure
+    return;
+  }
   const item = await response.json();
   // console.log("fetched items:", item);
   // console.log("fetched items:", item);
@@ -125,36 +134,49 @@ const handleLogout = async () => {
     router.push("/login");
   } catch (error) {
     console.error("logout because error:", error);
+    itemlist.value = [];
   }
 };
 
 const createItem = async () => {
   iscreateitem.value = true; // Set to true to indicate item creation is in progress
   try {
-    const { data, error } = await auth.getSession();
-    if (error || !data?.session) {
-      console.error("No active session found!");
-      return; // Stop the function if they aren't logged in
-    }
+    // const { data, error } = await auth.getSession();
+    // if (error || !data?.session) {
+    //   console.error("No active session found!");
+    //   return; // Stop the function if they aren't logged in
+    // }
     // console.log(data.session);
     // const token = data.session.token;
-    const userid = data.session.userId;
+    // const userid = data.session.userId;
     const payload = {
       ...itemcreation.value,
-      userId: `${userid}`,
+      // userId: `${userid}`,
     };
     // console.log(payload);
-    const response = await fetch(import.meta.env.VITE_API_URL + "/api/items/", {
+    // const response = await fetch(import.meta.env.VITE_API_URL + "/api/items/", {
+    //   method: "POST",
+    //   credentials: "include",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+    //   body: JSON.stringify(payload),
+    // });
+    const response = await apiFetch("/items", {
       method: "POST",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
       body: JSON.stringify(payload),
     });
-    await getitem(); // Refresh the item list after creating a new item
+    if (!response.ok) {
+      // Component-level error handling
+      console.error(
+        `Backend create item error: ${response.status} ${response.statusText}`,
+      );
+      // Show error to user (add your UI error ref here)
+      return;
+    }
     const responseData = await response.json();
     qrcode.value = responseData.qrcode;
+    await getitem(); // Refresh the item list after creating a new item
     // console.log("successfully created item");
     // console.log(qrcode.value);
     // console.log("successfully created item:", await response.json());
@@ -177,29 +199,37 @@ const viewreport = async (id: any) => {
 };
 const getqrcode = async (item: any) => {
   getscode.value = true;
-  const { data, error } = await auth.getSession();
-  if (error || !data?.session) {
-    console.error("No active session found!");
-    return; // Stop the function if they aren't logged in
-  }
+  // const { data, error } = await auth.getSession();
+  // if (error || !data?.session) {
+  //   console.error("No active session found!");
+  //   return; // Stop the function if they aren't logged in
+  // }
 
   try {
     const shortCode = item.shortCode;
     // console.log("shortCode:", shortCode);
     // const shortCode =await fetch(); // Assuming you want to use the userId as the shortCode
-    const reponse = await fetch(
-      import.meta.env.VITE_API_URL + `/api/items/${shortCode}/qrcode`,
-      {
-        method: "GET",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      },
-    );
+    // const reponse = await fetch(
+    //   import.meta.env.VITE_API_URL + `/api/items/${shortCode}/qrcode`,
+    //   {
+    //     method: "GET",
+    //     credentials: "include",
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //     },
+    //   },
+    // );
+    const reponse = await apiFetch(`/items/${shortCode}/qrcode`);
+    if (!reponse.ok) {
+      console.error(
+        `Backend get qrcode error: ${reponse.status} ${reponse.statusText}`,
+      );
+      item.qrImage = ""; // Option fallback safety
+      return;
+    }
     const responseData = await reponse.json();
     // console.log("fetched qrcode:", responseData);
-    item.qrImage = responseData.qrCode;
+    item.qrImage = responseData?.qrCode || "";
 
     // console.log("fetched qrcode:", qrcode.value);
   } catch (error) {
@@ -209,26 +239,30 @@ const getqrcode = async (item: any) => {
   }
 };
 const ArchieveItem = async (item: any) => {
-  const { data, error } = await auth.getSession();
-  if (error || !data?.session) {
-    console.error("No active session found!");
-    return; // Stop the function if they aren't logged in
-  }
+  // const { data, error } = await auth.getSession();
+  // if (error || !data?.session) {
+  //   console.error("No active session found!");
+  //   return; // Stop the function if they aren't logged in
+  // }
   try {
     const itemId = item.id;
-    const userId = data.session.userId;
+    // const userId = data.session.userId;
 
-    const response = await fetch(
-      import.meta.env.VITE_API_URL + `/api/items/${itemId}/archive`,
-      {
-        method: "PATCH",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ userId }),
-      },
-    );
+    // const response = await fetch(
+    //   import.meta.env.VITE_API_URL + `/api/items/${itemId}/archive`,
+    //   {
+    //     method: "PATCH",
+    //     credentials: "include",
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //     },
+    //     body: JSON.stringify({ userId }),
+    //   },
+    // );
+    const response = await apiFetch(`/items/${itemId}/archive`, {
+      method: "PATCH",
+      // body: JSON.stringify({ userId }), // **DELETED**: Redundant and insecure decentralized design.
+    });
     if (!response.ok) {
       throw new Error(`Failed to archive item: ${response.statusText}`);
     }
@@ -248,11 +282,11 @@ const edititemdata = ref({
 });
 const isEditModalOpen = ref(false); // Controls the visibility of the edit modal
 const edititem = async (item: any) => {
-  const { data, error } = await auth.getSession();
-  if (error || !data?.session) {
-    console.error("No active session found!");
-    return; // Stop the function if they aren't logged in
-  }
+  // const { data, error } = await auth.getSession();
+  // if (error || !data?.session) {
+  //   console.error("No active session found!");
+  //   return; // Stop the function if they aren't logged in
+  // }
   try {
     edititemdata.value = { ...item };
     isEditModalOpen.value = true;
@@ -263,25 +297,29 @@ const edititem = async (item: any) => {
   // console.log("Edit item:", item);
 };
 const updateItem = async () => {
-  const { data, error } = await auth.getSession();
-  if (error || !data?.session) {
-    console.error("No active session found!");
-    return; // Stop the function if they aren't logged in
-  }
+  // const { data, error } = await auth.getSession();
+  // if (error || !data?.session) {
+  //   console.error("No active session found!");
+  //   return; // Stop the function if they aren't logged in
+  // }
   try {
     const itemId = edititemdata.value.id;
 
-    const response = await fetch(
-      import.meta.env.VITE_API_URL + `/api/items/${itemId}`,
-      {
-        method: "PUT",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ ...edititemdata.value }),
-      },
-    );
+    // const response = await fetch(
+    //   import.meta.env.VITE_API_URL + `/api/items/${itemId}`,
+    //   {
+    //     method: "PUT",
+    //     credentials: "include",
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //     },
+    //     body: JSON.stringify({ ...edititemdata.value }),
+    //   },
+    // );
+    const response = await apiFetch(`/items/${itemId}`, {
+      method: "PUT",
+      body: JSON.stringify({ ...edititemdata.value }), // Item bulk update data
+    });
     if (!response.ok) {
       throw new Error(`Failed to update item: ${response.statusText}`);
     }
@@ -295,26 +333,30 @@ const updateItem = async () => {
 };
 
 const updatestatus = async (item: any) => {
-  const { data, error } = await auth.getSession();
-  if (error || !data?.session) {
-    console.error("No active session found!");
-    return; // Stop the function if they aren't logged in
-  }
+  // const { data, error } = await auth.getSession();
+  // if (error || !data?.session) {
+  //   console.error("No active session found!");
+  //   return; // Stop the function if they aren't logged in
+  // }
   try {
     const itemId = item.id;
     const newStatus = item.status === "ACTIVE" ? "LOST" : "ACTIVE"; // Toggle status
 
-    const response = await fetch(
-      import.meta.env.VITE_API_URL + `/api/items/${itemId}/status`,
-      {
-        method: "PATCH",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ status: newStatus }),
-      },
-    );
+    // const response = await fetch(
+    //   import.meta.env.VITE_API_URL + `/api/items/${itemId}/status`,
+    //   {
+    //     method: "PATCH",
+    //     credentials: "include",
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //     },
+    //     body: JSON.stringify({ status: newStatus }),
+    //   },
+    // );
+    const response = await apiFetch(`/items/${itemId}/status`, {
+      method: "PATCH",
+      body: JSON.stringify({ status: newStatus }), // Status data
+    });
     if (!response.ok) {
       throw new Error(`Failed to update status: ${response.statusText}`);
     }

@@ -2,7 +2,7 @@
 import { ref, onMounted, watch } from "vue";
 import { useRoute } from "vue-router";
 import Turnstile from "vue-turnstile";
-
+import { apiFetch } from "../../lib/api.js";
 const latitude = ref<number | null>(null);
 const longitude = ref<number | null>(null);
 const accuracy = ref<number | null>(null);
@@ -22,7 +22,12 @@ onMounted(() => {
   scanevent();
 });
 watch(message, (newVal) => {
-  localStorage.setItem("finder_draft", newVal);
+  // localStorage.setItem("finder_draft", newVal);
+  if (newVal === "") {
+    localStorage.removeItem("finder_draft");
+  } else {
+    localStorage.setItem("finder_draft", newVal);
+  }
 });
 const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY;
 //navigator.geolocation.getCurrentPosition(success, error, options)
@@ -30,15 +35,18 @@ const scanevent = async () => {
   try {
     // const shortcode = route.params.shortCode as string;
     // console.log("shortcode", shortcode);
-    const response = await fetch(
-      import.meta.env.VITE_API_URL + `/api/submitreport/${shortcode}/scan`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      },
-    );
+    // const response = await fetch(
+    //   import.meta.env.VITE_API_URL + `/api/submitreport/${shortcode}/scan`,
+    //   {
+    //     method: "POST",
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //     },
+    //   },
+    // );
+    const response = await apiFetch(`/submitreport/${shortcode}/scan`, {
+      method: "POST",
+    });
     if (!response.ok) {
       console.error("Failed to log scan event");
     }
@@ -60,7 +68,7 @@ const requestLocation = () => {
       longitude.value = position.coords.longitude;
       accuracy.value = position.coords.accuracy;
       locationStatus.value = "Location obtained successfully!";
-      console.log(position);
+      // console.log(position);
       isLocating.value = false;
     },
     (err) => {
@@ -83,26 +91,39 @@ const requestLocation = () => {
 const submitReport = async (attempt = 1) => {
   isSubmitting.value = true;
   try {
-    const response = await fetch(
-      import.meta.env.VITE_API_URL +
-        `/api/submitreport/${shortcode}/submitreport`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          message: message.value,
-          finderContact: contactInfo.value,
-          honeypot: honeypot.value,
-          turnstileToken: turnstileToken.value,
-          latitude: latitude.value,
-          longitude: longitude.value,
-          accuracyMeters: accuracy.value,
-          manualLocation: manualLocation.value,
-        }),
-      },
-    );
+    // const response = await fetch(
+    //   import.meta.env.VITE_API_URL +
+    //     `/api/submitreport/${shortcode}/submitreport`,
+    //   {
+    //     method: "POST",
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //     },
+    //     body: JSON.stringify({
+    //       message: message.value,
+    //       finderContact: contactInfo.value,
+    //       honeypot: honeypot.value,
+    //       turnstileToken: turnstileToken.value,
+    //       latitude: latitude.value,
+    //       longitude: longitude.value,
+    //       accuracyMeters: accuracy.value,
+    //       manualLocation: manualLocation.value,
+    //     }),
+    //   },
+    // );
+    const response = await apiFetch(`/submitreport/${shortcode}/submitreport`, {
+      method: "POST",
+      body: JSON.stringify({
+        message: message.value,
+        finderContact: contactInfo.value,
+        honeypot: honeypot.value,
+        turnstileToken: turnstileToken.value,
+        latitude: latitude.value,
+        longitude: longitude.value,
+        accuracyMeters: accuracy.value,
+        manualLocation: manualLocation.value,
+      }),
+    });
     const data = await response.json();
     if (!response.ok) {
       throw new Error(data.error || "Failed to send report");
@@ -110,6 +131,7 @@ const submitReport = async (attempt = 1) => {
     // console.log("Report submitted successfully:", data);
     // console.log(latitude.value, longitude.value, accuracy.value);
     localStorage.removeItem("finder_draft");
+    message.value = "";
     locationStatus.value = "Report sent successfully!";
     isSubmitting.value = false;
   } catch (error) {
