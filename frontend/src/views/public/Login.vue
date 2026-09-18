@@ -36,7 +36,12 @@ const handleSubmit = async () => {
   if (response.error) {
     errorMessage.value = response.error.message || "An error occurred";
   } else {
-    router.push("/dashboard");
+    if (response.data?.token) {
+      localStorage.setItem("session_token", response.data.token);
+      router.push("/dashboard");
+    } else {
+      errorMessage.value = "Login succeeded, but no token was returned.";
+    }
   }
   isloading.value = false;
 };
