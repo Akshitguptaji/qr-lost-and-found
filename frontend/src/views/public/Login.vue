@@ -32,7 +32,7 @@ const handleSubmit = async () => {
       password: password.value,
     });
   }
-
+  console.log("response", response);
   if (response.error) {
     errorMessage.value = response.error.message || "An error occurred";
   } else {
