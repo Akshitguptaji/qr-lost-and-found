@@ -243,7 +243,7 @@ const submitReport = async (attempt = 1) => {
         class="w-full bg-green-600 text-white font-bold py-3 px-4 rounded mt-2"
       >
         {{ isSubmitting ? "Sending..." : "Send Message" }}
-      </button>
+      </button> 
       <p class="mt-4 text-sm text-gray-600">{{ locationStatus }}</p>
     </form>
   </main>
