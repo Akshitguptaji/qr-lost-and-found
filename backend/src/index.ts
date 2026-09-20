@@ -9,7 +9,11 @@ const app = express();
 app.use(
   cors({
     origin: process.env.FRONTEND_URL || "http://localhost:5173",
-    methods: ["GET", "POST", "PATCH","PUT", "DELETE", "OPTIONS"], // Your Vue app's exact URL
+    methods: ["GET", "POST", "PATCH","PUT", "DELETE", "OPTIONS"],
+     allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+    ], // Your Vue app's exact URL
     credentials: true, // MANDATORY for Better Auth to set session cookies
   }),
 );
