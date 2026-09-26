@@ -53,4 +53,12 @@ back to work
 shit
 ill, due to which can not do. (logn system correctness.)
 just strt to learn abt networking
+<<<<<<< HEAD
 appliy forinternship 
+=======
+not recovered yet. 
+back to workkk
+back to work to my work. 
+wasted
+>>>>>>> 70b6d6968da41034cb61d707f9332f11df6c9dd7
+just back to work to internsip
