@@ -63,6 +63,12 @@ wasted
 >>>>>>> 70b6d6968da41034cb61d707f9332f11df6c9dd7
 just back to work to internsip
 back to work and finall submit the form. 
+<<<<<<< HEAD
 working of the assignment. 
 
 strt the dsa jorney.
+=======
+working of the assignment.
+>>>>>>> just finally  completed the assignment 
+doing dsa strt. 
+>>>>>>> 4a7c33dc44f1488d7dc1e174a5ea1b1bf4572ad9
