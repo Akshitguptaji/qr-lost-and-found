@@ -1,8 +1,9 @@
 <script setup lang="ts">
 //telling the vue we r using modern composition-api.
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import { auth } from "../../lib/auth.js";
+
 //Reactive variables that will directly connect to what the user types in the input boxes.
 // const name = ref(''), email, password
 const router = useRouter();
@@ -11,6 +12,14 @@ const password = ref("");
 const name = ref(""); //all thses are access by v-model in the input boxes. So when the user types in the input box, the value of these reactive variables will change accordingly.
 const errorMessage = ref(" ");
 const isloading = ref(false);
+const didPasswordValid = computed(() => {
+  return (
+    password.value.length >= 8 &&
+    /[A-Z]/.test(password.value) &&
+    /[a-z]/.test(password.value) &&
+    /[0-9]/.test(password.value)
+  );
+});
 //Tracks if the API request is currently running so we can disable the button and prevent double-clicks.
 //suppose a user click the btn (login or signup) and the request is sent to the backend, we want to show a loading spinner. So we create a reactive variable called isloading. When the request is sent, we set isloading to true. When the request is done, we set isloading to false.
 const isSignUp = ref(false); //A reactive boolean. If false, show Login. If true, show Sign Up.
@@ -108,15 +117,69 @@ const handleSubmit = async () => {
           <label
             class="block text-sm font-medium text-zinc-700 mb-1"
             for="password"
-            >Password</label
           >
+            Password
+          </label>
+
           <input
             id="password"
             v-model="password"
             type="password"
             required
+            minlength="8"
             class="w-full px-3 py-2 border border-zinc-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
           />
+
+          <p class="text-xs text-zinc-500 mt-1">
+            Password must be at least 8 characters and contain an uppercase
+            letter, lowercase letter, and number.
+          </p>
+
+          <p
+            v-if="password && !didPasswordValid"
+            class="text-sm text-red-500 mt-1"
+          >
+            Invalid password. Please follow the required format.
+          </p>
+
+          <div class="mt-2 space-y-1 text-xs">
+            <p
+              :class="password.length >= 8 ? 'text-green-600' : 'text-zinc-500'"
+            >
+              ✓ At least 8 characters
+            </p>
+
+            <p
+              :class="
+                /[A-Z]/.test(password) ? 'text-green-600' : 'text-zinc-500'
+              "
+            >
+              ✓ One uppercase letter
+            </p>
+
+            <p
+              :class="
+                /[a-z]/.test(password) ? 'text-green-600' : 'text-zinc-500'
+              "
+            >
+              ✓ One lowercase letter
+            </p>
+
+            <p
+              :class="
+                /[0-9]/.test(password) ? 'text-green-600' : 'text-zinc-500'
+              "
+            >
+              ✓ One number
+            </p>
+          </div>
+
+          <p
+            v-if="password && didPasswordValid"
+            class="text-sm text-green-600 mt-1"
+          >
+            Password looks good ✓
+          </p>
         </div>
 
         <p v-if="errorMessage" class="text-red-500 text-sm text-center"></p>
