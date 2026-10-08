@@ -78,3 +78,5 @@ doing dsa practice.
 >>>>>>> assignment.  
 working my daaa
 doing my shut cause exam is coming. 
+kubernets strt
+>>>>>>> 
