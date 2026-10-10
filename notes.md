@@ -81,3 +81,4 @@ doing my shut cause exam is coming.
 kubernets strt
 >>>>>>> 
 doing nothing and understand a bit abt ai.
+doing  the survey for next project. 
