@@ -77,6 +77,7 @@ doing dsa practice.
 >>>>>>> doing shutting
 >>>>>>> assignment.  
 working my daaa
+>>>>>>> understanding the Software req. and software engg.,
 doing my shut cause exam is coming. 
 kubernets strt
 >>>>>>> 
