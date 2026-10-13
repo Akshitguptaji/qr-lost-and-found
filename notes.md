@@ -84,3 +84,4 @@ kubernets strt
 doing nothing and understand a bit abt ai.
 doing  the survey for next project. 
 learning algo. 
+learn some concepts of graph. 
