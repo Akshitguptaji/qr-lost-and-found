@@ -87,3 +87,4 @@ learning algo.
 learn some concepts of graph. 
 learn abt software  eng. 
 u derstand dbms
+understanding RAG
