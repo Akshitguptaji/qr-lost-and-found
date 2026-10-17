@@ -88,3 +88,4 @@ learn some concepts of graph.
 learn abt software  eng. 
 u derstand dbms
 understanding RAG
+leqrn more abt rag. and chatbot.
