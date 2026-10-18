@@ -89,3 +89,4 @@ learn abt software  eng.
 u derstand dbms
 understanding RAG
 leqrn more abt rag. and chatbot.
+learn nothing just chill cause Sunday. 
