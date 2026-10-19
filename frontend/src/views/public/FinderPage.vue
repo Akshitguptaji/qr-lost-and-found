@@ -139,7 +139,7 @@ const submitReport = async (attempt = 1) => {
           latitude: latitude.value,
           longitude: longitude.value,
           accuracyMeters: accuracy.value,
-          manualLocation: manualLocation.value,
+          manualLocation: manualLocation.value.trim() || null,
         }),
       },
     );
