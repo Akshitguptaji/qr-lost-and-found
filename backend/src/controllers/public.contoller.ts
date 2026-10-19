@@ -53,10 +53,10 @@ export const submitFoundReport = async (
       finderContact,
       manualLocation,
     });
-    console.log("Manual location received:", {
-      value: req.body?.manualLocation,
-      type: typeof req.body?.manualLocation,
-    });
+    // console.log("Manual location received:", {
+    //   value: req.body?.manualLocation,
+    //   type: typeof req.body?.manualLocation,
+    // });
     return res.status(200).json({ okk: true, data: report });
   } catch (err: any) {
     if (err.message === "ITEM_NOT_FOUND") {

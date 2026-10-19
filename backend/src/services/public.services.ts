@@ -30,10 +30,10 @@ export const createReportService = async (
   }
 
   // Keep the transaction, just use it for the Report and the Log
-  console.log("Manual location passed to service:", {
-    value: data.manualLocation,
-    type: typeof data.manualLocation,
-  });
+  // console.log("Manual location passed to service:", {
+  //   value: data.manualLocation,
+  //   type: typeof data.manualLocation,
+  // });
   const { report, notificationLog } = await prisma.$transaction(async (tx) => {
     // Step B: Create the actual report
     const report = await tx.foundReport.create({
