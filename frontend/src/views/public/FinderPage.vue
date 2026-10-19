@@ -182,7 +182,7 @@ const submitReport = async (attempt = 1) => {
         </button>
       </div>
     </div>
-    <div
+    <!-- <div
       v-if="
         locationStatus.includes('not shared') ||
         locationStatus.includes('Could not get')
@@ -198,7 +198,7 @@ const submitReport = async (attempt = 1) => {
         class="border p-2 w-full rounded"
         placeholder="e.g., Under the park bench"
       />
-    </div>
+    </div> -->
     <form
       @submit.prevent="submitReport()"
       :disabled="isLocating || isSubmitting"
