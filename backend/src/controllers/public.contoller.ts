@@ -22,6 +22,7 @@ export const submitFoundReport = async (
     message,
     finderContact,
     honeypot,
+    manualLocation,
   } = req.body;
 
   // 1. Bot Trap (Honeypot)
@@ -50,6 +51,7 @@ export const submitFoundReport = async (
       accuracyMeters,
       message,
       finderContact,
+      manualLocation,
     });
 
     return res.status(200).json({ okk: true, data: report });
