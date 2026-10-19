@@ -65,7 +65,7 @@ import {
           <CardHeader>
             <CardTitle>2. Stick It</CardTitle>
             <CardDescription
-              >Print or order stickers for your items.</CardDescription
+              >Print  Qr  for your items.</CardDescription
             >
           </CardHeader>
         </Card>
