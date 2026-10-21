@@ -93,3 +93,4 @@ learn nothing just chill cause Sunday.
 add some changes to client web.
 just finish dussherea
 just complete the workshop on rag
+just complete the shitm 
