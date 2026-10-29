@@ -97,3 +97,4 @@ just complete the shitm
 learn the rag  
 got sick 
 just connect with Maverick. 
+get some advice from seniors. and understand  a lot of abt rn coropate culture 
