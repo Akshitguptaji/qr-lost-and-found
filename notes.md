@@ -99,3 +99,4 @@ got sick
 just connect with Maverick. 
 get some advice from seniors. and understand  a lot of abt rn coropate culture 
 just stuck with life. 
+just nothing  doo lol
