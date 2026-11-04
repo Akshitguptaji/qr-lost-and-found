@@ -103,3 +103,4 @@ just nothing  doo lol
 nothing to work siiple
 nothing to work just simple emjoy
 norhing just wodering fuckk shit . 
+finalize my roadmap for aim
