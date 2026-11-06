@@ -105,3 +105,4 @@ nothing to work just simple emjoy
 norhing just wodering fuckk shit . 
 finalize my roadmap for aim
 not much to do todat
+traveling to train
