@@ -109,3 +109,4 @@ traveling to train
 lost my phone working on nothing enjoying festival
 book a new phone 
 nothing to do 
+doong problem solinvg
