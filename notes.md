@@ -112,5 +112,3 @@ nothing to do
 doong problem solinvg
 done
 i m weak
-nothing
-nothing
