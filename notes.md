@@ -114,3 +114,4 @@ done
 i m weak
 got the phone 
 finalize the ai roadmap....
+nothing
